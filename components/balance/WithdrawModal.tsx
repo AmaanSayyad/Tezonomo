@@ -123,7 +123,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title={`Withdraw ${currencySymbol}`}
-      showCloseButton={!isLoading}
+      showCloseButton={true}
     >
       <div className="space-y-4">
         <div className="bg-gradient-to-br from-blue-500/10 to-transparent border border-blue-500/30 rounded-lg p-3 relative overflow-hidden">

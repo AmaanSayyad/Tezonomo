@@ -1,242 +1,338 @@
-# SOLNOMO - Solana BTC Price Prediction Game
+# Tezonomo
 
-SOLNOMO is a decentralized real-time BTC price prediction game built on the Solana Blockchain. Users deposit SOL tokens to their house balance and place bets on Bitcoin price movements within 30-second rounds. The system combines secure on-chain treasury management with ultra-fast off-chain game logic for an optimal performance and user experience.
+**Next-gen binary options trading on Tezos.**  
+Trade XTZ with instant settlement, Pyth-backed resolution, and a single treasury — no per-bet transactions.
+---
 
-## Core Features
+## Why Tezonomo?
 
-- Real-time BTC price prediction with 30-second rounds
-- SOL-based betting system on Solana Devnet/Testnet
-- Secure treasury wallet system for deposit/withdrawal operations
-- Off-chain game logic for instant bet placement and settlement
-- Live price chart with historical data visualization (BTC/USD)
-- Multiple betting targets with configurable multipliers (up to 10x)
-- Comprehensive audit logging for all balance operations
-- Real-time balance synchronization between blockchain transactions and database
+Binary options in Web3 are rare; in Web2 they’re often opaque and unfair. Tezonomo fixes that:
+
+- **Oracle-backed resolution** — Pyth Network drives real-time price attestations so wins and losses are provable.
+- **Tezos-native** — Deposit and withdraw XTZ via Temple Wallet (Beacon); treasury and flows are on Tezos.
+- **No per-bet signing** — House balance (Supabase) lets you place and resolve bets instantly; you only sign for deposit/withdraw.
+- **Rich markets** — Crypto (BTC, XTZ, ETH, …), stocks (NVDA, TSLA), metals (Gold, Silver), forex (EUR, GBP, JPY) via Pyth.
+
+*Like a modern “Binomo” experience — on Tezos, with oracle-backed resolution and minimal trust.*
+
+---
+
+## What You Get
+
+- **Real-time resolution** — Pyth-powered prices; rounds resolve in seconds.
+- **20+ markets** — Crypto, stocks, metals, forex (Pyth feeds).
+- **Bet without signing every tx** — Off-chain house balance; deposit/withdraw on Tezos when you choose.
+- **Two modes** — **Classic**: UP/DOWN + expiry (e.g. 5s–30s). **Box**: Tap tiles with multipliers; win when price touches your tile.
+- **1–10x multipliers** (and Blitz), single XTZ treasury.
+- **Instant settlement** — Off-chain engine + oracle-bound resolution; balance updates immediately.
+
+---
+
+## How It Works
+
+1. **Connect & fund** — Connect **Temple Wallet** (Beacon), deposit XTZ into your Tezonomo house balance (on-chain transfer to treasury).
+2. **Choose mode & place bet** — Pick amount, then **Classic** (UP/DOWN + expiry) or **Box** (multiplier tiles on the chart).
+3. **Resolution** — Pyth price at expiry (or when price hits your tile in Box mode) determines win/loss. House balance updates instantly.
+4. **Withdraw** — Request withdrawal; treasury sends XTZ to your Tezos address (minus a small fee). Confirmation on Tezos (Protocol 024–compatible gas limits).
+
+---
+
+## User flow
+
+```mermaid
+flowchart LR
+    subgraph Entry[" "]
+        A[Land on Tezonomo]
+    end
+
+    subgraph Onboard["Connect & fund"]
+        B[Connect Temple Wallet]
+        C[Deposit XTZ to house balance]
+        D[Sign tx in wallet]
+    end
+
+    subgraph Play["Trade"]
+        E[Choose asset & mode]
+        F[Classic: UP/DOWN + expiry]
+        G[Box: tap multiplier tile]
+        H[Enter amount & place bet]
+        I[Watch live chart]
+    end
+
+    subgraph Resolve["Settlement"]
+        J[Round expires / price hits tile]
+        K[Pyth price vs target]
+        L[Win: balance + payout]
+        M[Loss: bet deducted]
+    end
+
+    subgraph Exit[" "]
+        N[Withdraw XTZ to wallet]
+    end
+
+    A --> B --> C --> D --> E
+    E --> F
+    E --> G
+    F --> H
+    G --> H
+    H --> I --> J --> K
+    K -->|Hit| L
+    K -->|Miss| M
+    L --> E
+    M --> E
+    L --> N
+    M --> N
+```
+
+**Summary:** User connects wallet → deposits XTZ (one signed tx) → chooses Classic or Box, places bets (no extra signing) → round resolves from Pyth price → balance updates → repeat or withdraw XTZ to wallet.
+
+---
 
 ## System Architecture
 
-The application follows a hybrid architecture combining on-chain treasury operations with off-chain game logic. This design optimizes for security (deposits/withdrawals on-chain) and performance (game logic off-chain).
+Hybrid: **on-chain treasury (Tezos)** + **off-chain game engine + oracle (Pyth)** + **off-chain state (Supabase)**.
 
-### High-Level Architecture
+### High-level
 
 ```mermaid
 graph TB
-    subgraph "Client Layer"
-        UI[React Components]
-        Store[Zustand State]
-        Hooks[Custom Hooks]
+    subgraph Client["Client Layer"]
+        UI[React / Next.js UI]
+        Store[Zustand Store]
+        Beacon[Temple / Beacon Wallet]
     end
-    
-    subgraph "Wallet Integration"
-        SolanaAdapter[@solana/wallet-adapter-react]
-        WalletAdapters[Phantom/Solflare Adapters]
+
+    subgraph Blockchain["Tezos"]
+        RPC[Tezos RPC]
+        Treasury[XTZ Treasury]
+        XTZ[XTZ]
     end
-    
-    subgraph "Blockchain Layer"
-        SolanaSDK[@solana/web3.js]
-        Treasury[Treasury Wallet]
-        SOL[SOL Native Token]
-        Transactions[Solana Transactions]
+
+    subgraph Backend["Backend"]
+        NextAPI[Next.js API Routes]
+        GameEngine[Game Logic]
     end
-    
-    subgraph "API Layer"
-        BalanceAPI[Balance API]
-        GameAPI[Game API]
-        Verification[Transaction Verification]
+
+    subgraph Data["Data & Oracle"]
+        Supabase[(Supabase)]
+        Pyth[Pyth Network]
     end
-    
-    subgraph "Data Layer"
-        Supabase[(Supabase PostgreSQL)]
-        PriceAPI[Price Feed API / Pyth]
-    end
-    
-    UI --> Store
-    UI --> Hooks
-    Hooks --> SolanaAdapter
-    SolanaAdapter --> WalletAdapters
-    SolanaAdapter --> SolanaSDK
-    
-    SolanaSDK --> Treasury
-    Treasury --> SOL
-    Treasury --> Transactions
-    
-    Store --> BalanceAPI
-    Store --> GameAPI
-    
-    BalanceAPI --> Supabase
-    GameAPI --> Supabase
-    GameAPI --> PriceAPI
-    
-    Verification --> Transactions
-    Verification --> Supabase
+
+    UI --> Store --> Beacon
+    Beacon --> RPC --> Treasury
+    Store --> NextAPI --> GameEngine
+    GameEngine --> Pyth
+    GameEngine --> Supabase
 ```
 
-### Component Architecture
+### Deposit flow
 
 ```mermaid
-graph LR
-    subgraph "UI Components"
-        WalletConnect[WalletConnect]
-        BalanceDisplay[BalanceDisplay]
-        DepositModal[DepositModal]
-        WithdrawModal[WithdrawModal]
-        GameBoard[GameBoard]
-        BetControls[BetControls]
-        BetHistory[BetHistory]
-    end
-    
-    subgraph "State Management"
-        WalletSlice[walletSlice]
-        BalanceSlice[balanceSlice]
-        GameSlice[gameSlice]
-        HistorySlice[historySlice]
-    end
-    
-    subgraph "Integration Layer"
-        SolanaClient[Solana Client]
-        SolanaWallet[Solana Wallet Adapter]
-    end
-    
-    WalletConnect --> WalletSlice
-    BalanceDisplay --> BalanceSlice
-    DepositModal --> BalanceSlice
-    WithdrawModal --> BalanceSlice
-    GameBoard --> GameSlice
-    BetControls --> GameSlice
-    BetHistory --> HistorySlice
-    
-    WalletSlice --> SolanaWallet
-    BalanceSlice --> SolanaClient
-    GameSlice --> SolanaClient
+sequenceDiagram
+    participant U as User
+    participant UI as Tezonomo UI
+    participant TW as Temple Wallet
+    participant T as Tezos
+    participant API as Next.js API
+    participant DB as Supabase
+
+    U->>UI: Deposit, enter amount
+    UI->>TW: transfer(treasury, amount XTZ)
+    TW->>U: Confirm tx
+    U->>TW: Sign
+    TW->>T: Broadcast
+    T-->>TW: opHash
+    TW-->>UI: opHash
+    UI->>API: POST /api/balance/deposit { address, amount, txHash }
+    API->>DB: Upsert user_balances (+amount)
+    DB-->>API: OK
+    API-->>UI: Success
+    UI->>U: Balance updated
 ```
 
-## Technical Stack
+### Bet lifecycle
 
-### Frontend
-- **Next.js 14**: React framework with App Router
-- **TypeScript**: Type-safe development
-- **Tailwind CSS**: Utility-first CSS framework
-- **Zustand**: Lightweight state management
-- **Recharts**: Price visualization
-- **@solana/wallet-adapter-react**: Official Solana wallet integration
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant UI as Game UI
+    participant Store as Zustand
+    participant API as Next.js API
+    participant Pyth as Pyth
+    participant DB as Supabase
 
-### Blockchain
-- **Solana Blockchain**: High-performance Layer 1 blockchain
-- **@solana/web3.js**: TypeScript SDK for Solana interactions
-- **SOL**: Native currency for deposits and betting
-- **Pyth Network**: Real-time price oracle integration
+    U->>UI: Place bet (amount, direction/tile)
+    UI->>Store: addActiveBet()
+    Store->>API: POST /api/balance/bet (deduct balance)
+    API->>DB: deduct_balance_for_bet, audit log
+    API-->>Store: remainingBalance
+    Store->>Store: setBalance(remainingBalance)
 
-### Backend
-- **Next.js API Routes**: Serverless API endpoints for game logic
-- **Supabase**: PostgreSQL database with real-time subscriptions
-- **Solana Connection**: Direct RPC interaction for balance checks and transaction confirmation
+    loop Until expiry
+        Store->>Pyth: Price (1s)
+        Pyth-->>Store: Price
+        Store->>UI: Chart & resolution check
+    end
+
+    Store->>Store: Resolve win/loss
+    Store->>API: POST /api/balance/payout (if win)
+    API->>DB: credit_balance_for_payout
+    Store->>UI: Result, updated balance
+```
+
+### Withdrawal flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant UI as Tezonomo UI
+    participant API as Next.js API
+    participant DB as Supabase
+    participant Treasury as Tezos Treasury
+
+    U->>UI: Request withdrawal (amount)
+    UI->>API: POST /api/balance/withdraw { address, amount }
+    API->>DB: Get balance, validate
+    API->>API: Fee 2%, net amount
+    API->>Treasury: Taquito transfer XTZ to user
+    Treasury->>U: XTZ to wallet
+    Treasury-->>API: opHash
+    API->>DB: update_balance_for_withdrawal RPC
+    DB-->>API: OK
+    API-->>UI: Success + opHash
+    UI->>U: Withdrawal complete
+```
+
+- **Tezos** — Deposits (wallet → treasury), withdrawals (treasury → wallet); native XTZ; Taquito + Beacon; Protocol 024 (PtTALLIN) compatible gas limits.
+- **Pyth Network** — Real-time prices for resolution (crypto, stocks, FX, metals).
+- **Supabase** — House balances (`user_balances` by address + currency XTZ), bet history, audit trail.
+
+---
+
+## Tech Stack
+
+| Layer        | Stack |
+|-------------|--------|
+| **Frontend** | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Zustand, Framer Motion |
+| **Blockchain** | Tezos (mainnet / Ghostnet), Temple Wallet (Beacon), Taquito, XTZ |
+| **Oracle** | Pyth Network — 20+ feeds |
+| **Backend** | Next.js API Routes, Supabase (PostgreSQL, RPCs) |
+| **Payments** | Tezos treasury (on-chain XTZ), house balance (Supabase) |
+
+---
+
+## Competitive landscape
+
+| | **Tezonomo** | **Web2 binary options** (Binomo, IQ Option, etc.) | **Web3 prediction** (Polymarket, Kalshi) | **Other on-chain binary / derivatives** |
+|--|--------------|---------------------------------------------------|-----------------------------------------|----------------------------------------|
+| **Real-time oracle** | ✅ Pyth (sub-second prices) | ❌ Opaque / synthetic feeds | ⚠️ Event-based or delayed | ❌ Often none or slow oracles |
+| **Settlement speed** | &lt;1 s (off-chain engine) | Variable, often disputed | Days (resolution windows) | Block-time bound |
+| **Trust / provability** | Oracle-bound, audit log | ❌ Opaque, regulatory issues | ✅ On-chain or attested | ⚠️ Varies |
+| **Binary options focus** | ✅ Native (Classic + Box) | ✅ Yes | ❌ Mostly yes/no markets | ⚠️ Rare; often full options |
+| **Deposit / withdraw** | Tezos (XTZ), Temple Wallet | Fiat, KYC | Crypto / fiat, often slow | On-chain, chain speed |
+| **Per-bet signing** | ❌ No (house balance) | ❌ No | ⚠️ Often yes | ✅ Typically every tx |
+| **Multi-asset (crypto, stocks, FX)** | ✅ 20+ via Pyth | ✅ Yes | ⚠️ Limited | ⚠️ Usually crypto only |
+| **Chain** | **Tezos** | N/A | Various | ETH, L2s, etc. |
+
+*Tezonomo combines a real-time oracle (Pyth), Tezos for treasury and value flow, and off-chain execution so users get fast, transparent binary options without signing every bet.*
+
+---
+
+## Tezos alignment
+
+
+
+
+- **Tezos-native** — All value flow (deposit/withdraw) is XTZ on Tezos; wallet integration via Beacon (Temple); backend uses Taquito for treasury operations.
+- **Real-time, consumer-facing** — Live charts, instant bet placement and resolution, and balance updates; fits **Gaming & Consumer Applications**.
+- **Financial infrastructure** — House balance, treasury, and fee model are a small-scale payment/credits layer on Tezos.
+
+- **Gaming & Consumer Applications** — Tezonomo is an interactive binary options dApp: users connect wallet, deposit XTZ, place bets, and withdraw — all with a consumer-grade UX and real-time data.
+
+### Repo alignment
+
+- **Tezos:** `@taquito/taquito`, `@taquito/beacon-wallet`, `@taquito/signer`; `lib/tezos/` (client, wallet, backend-client) for balance, deposit, and treasury withdrawals.
+- **Wallet:** Beacon (Temple); connect/disconnect and signing in `lib/tezos/wallet.ts`.
+- **Config:** `NEXT_PUBLIC_TEZOS_RPC_URL`, `NEXT_PUBLIC_TEZOS_TREASURY_ADDRESS`, `TEZOS_TREASURY_SECRET_KEY` in `.env`.
+
+---
 
 ## Prerequisites
 
-- Node.js 18+ and npm
-- A Solana wallet (Phantom, Solflare, etc.) for testing
-- Solana Devnet/Testnet SOL tokens (get from [Solana Faucet](https://faucet.solana.com/))
+- **Node.js 18+** and npm or yarn
+- **Temple Wallet** (or another Beacon-compatible Tezos wallet)
+- **Tezos** — Mainnet or Ghostnet XTZ (e.g. [Ghostnet faucet](https://faucet.ghostnet.tezos.com/))
+
+---
 
 ## Getting Started
 
-### 1. Install Dependencies
+### 1. Install
 
 ```bash
-npm install
+yarn install
+# or: npm install
 ```
 
-### 2. Set Up Environment Variables
+### 2. Environment
 
-Copy the example environment file and configure it:
+Copy `.env.example` to `.env` and set:
 
 ```bash
-cp .env.example .env
+# Tezonomo Application Configuration
+NEXT_PUBLIC_APP_NAME=Tezonomo
+NEXT_PUBLIC_ROUND_DURATION=30
+NEXT_PUBLIC_PRICE_UPDATE_INTERVAL=1000
+NEXT_PUBLIC_CHART_TIME_WINDOW=300000
+
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Tezos Blockchain Configuration
+# Mainnet or Ghostnet for testing (e.g. https://ghostnet.ecadinfra.com)
+NEXT_PUBLIC_TEZOS_RPC_URL=https://mainnet.ecadinfra.com
+NEXT_PUBLIC_TEZOS_TREASURY_ADDRESS=your-treasury-address
+TEZOS_TREASURY_SECRET_KEY=your-treasury-secret-key
+
+# Optional: WalletConnect (If using specific Beacon features)
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your-project-id
 ```
 
-**Required Environment Variables:**
-- `NEXT_PUBLIC_SOLANA_NETWORK`: Network (devnet, testnet, mainnet-beta)
-- `NEXT_PUBLIC_SOLANA_RPC_ENDPOINT`: Solana RPC URL
-- `NEXT_PUBLIC_TREASURY_ADDRESS`: Solana Public Key of the treasury wallet
-- `SOLANA_TREASURY_SECRET_KEY`: Private Key (Base58 or JSON) for withdrawal processing
-- `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key
+### 3. Database
 
-### 3. Set Up Supabase Database
+In the Supabase SQL Editor, run the migrations in `supabase/migrations/` in order (e.g. `001_*` through `008_*`). This creates `user_balances` (with currency, e.g. XTZ), `balance_audit_log`, and procedures such as `deduct_balance_for_bet`, `credit_balance_for_payout`, `update_balance_for_withdrawal`.
 
-1. Create a project at [supabase.com](https://supabase.com)
-2. Run the SQL migrations found in `supabase/migrations/` in the Supabase SQL Editor.
-
-### 4. Start the Development Server
+### 4. Run
 
 ```bash
-npm run dev
+yarn dev
+# or: npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000). Connect Temple Wallet, deposit XTZ, and place bets.
 
-## Database Schema
+---
 
-### Table Definitions
+## Database (summary)
 
-#### user_balances
-Stores the current house balance for each user address.
+- **user_balances** — House balance per user (Tezos address) and currency (XTZ); used for deposits, bets, and withdrawals.
+- **balance_audit_log** — Audit trail: deposit, withdrawal, bet_placed, bet_won, etc.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| user_address | TEXT | Solana wallet address (Base58) |
-| balance | NUMERIC(20,8) | Current SOL balance |
-| updated_at | TIMESTAMP | Last update timestamp |
-
-#### balance_audit_log
-Audit trail for all balance operations.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | BIGSERIAL | Auto-incrementing ID |
-| user_address | TEXT | Solana wallet address |
-| operation_type | TEXT | deposit, withdrawal, bet_placed, bet_won |
-| amount | NUMERIC(20,8) | Operation amount |
-| transaction_hash | TEXT | Solana transaction signature |
-
-## Game Mechanics
-
-### Betting Targets
-Multiple targets with multipliers based on price movement:
-
-| Target | Price Movement | Multiplier |
-|--------|---------------|------------|
-| Target 1 | +0.1% to +0.3% | 2.5x |
-| Target 2 | +0.3% to +0.5% | 5.0x |
-| Target 3 | +0.5% to +1.0% | 10.0x |
-| ... | Downward targets | ... |
-
-### House Balance System
-The house balance system enables fast bet placement without blockchain transactions:
-
-1. User deposits SOL to treasury (on-chain transaction)
-2. UI confirms transaction and updates house balance (off-chain)
-3. User places bets instantly using house balance (off-chain)
-4. Winnings credited instantly to house balance (off-chain)
-5. User withdraws SOL to wallet (on-chain via treasury)
+---
 
 ## Troubleshooting
 
-### Wallet Connection Issues
-- Ensure wallet is on the same network as the app (Devnet/Testnet).
-- Check that you have SOL for gas fees.
-- Refresh the page to re-initialize the Solana provider.
+- **Wallet not connecting** — Install/unlock Temple (or Beacon-compatible wallet); ensure app and wallet use the same network (mainnet or Ghostnet).
+- **Balance not loading** — Ensure Supabase env vars and migrations are correct; GET `/api/balance/[address]?currency=XTZ` returns `balance` and `tier`.
+- **Withdrawal gas errors** — Backend uses explicit gas limits for Protocol 024 (PtTALLIN); if you see gas errors, check `lib/tezos/backend-client.ts` and RPC URL (mainnet vs Ghostnet).
 
-### Balance Mismatch
-- Transactions on Solana may take a few seconds to reach 'confirmed' status.
-- Verify the transaction signature on [Solana Explorer](https://explorer.solana.com/?cluster=devnet).
-
-## License
-
-MIT License
+---
 
 ## Resources
 
-- [Solana Documentation](https://docs.solana.com/)
-- [Solana Web3.js SDK](https://solana-labs.github.io/solana-web3.js/)
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Supabase Documentation](https://supabase.com/docs)
+- [Tezos](https://tezos.com/)
+- [Taquito](https://tequito.io/)
+- [Beacon (Temple)](https://wallet.templewallet.com/)
+- [Pyth Network](https://pyth.network/)

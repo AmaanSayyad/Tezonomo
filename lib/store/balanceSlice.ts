@@ -184,6 +184,10 @@ export const createBalanceSlice: StateCreator<BalanceState> = (set, get) => ({
     try {
       set({ isLoading: true, error: null });
 
+      // Prevent UI from staying stuck: abort after 75s (Tezos confirmation can be slow)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 75000);
+
       const response = await fetch('/api/balance/withdraw', {
         method: 'POST',
         headers: {
@@ -194,7 +198,10 @@ export const createBalanceSlice: StateCreator<BalanceState> = (set, get) => ({
           amount,
           currency: network
         }),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -221,11 +228,14 @@ export const createBalanceSlice: StateCreator<BalanceState> = (set, get) => ({
       return data;
     } catch (error) {
       console.error('Error processing withdrawal:', error);
+      const message = error instanceof Error
+        ? (error.name === 'AbortError' ? 'Withdrawal timed out. Check your wallet or try again.' : error.message)
+        : 'Failed to process withdrawal';
       set({
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to process withdrawal'
+        error: message
       });
-      throw error;
+      throw new Error(message);
     }
   },
 

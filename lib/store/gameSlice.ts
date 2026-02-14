@@ -409,6 +409,14 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
       // Add to active bets (multiple bets can be active simultaneously)
       addActiveBet(activeBet);
 
+      // Update house balance in store so UI reflects deduction immediately (real account only)
+      if (data.remainingBalance !== undefined && data.remainingBalance !== null) {
+        const setBalance = (get() as any).setBalance;
+        if (typeof setBalance === 'function') {
+          setBalance(data.remainingBalance);
+        }
+      }
+
       set({
         isPlacingBet: false,
         error: null,

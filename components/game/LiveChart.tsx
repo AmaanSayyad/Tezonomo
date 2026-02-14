@@ -291,8 +291,7 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
           ['GOLD', 'SILVER'].includes(selectedAsset) ? 0.0012 : // Metals: Medium
             selectedAsset === 'BTC' ? 0.0015 :
               selectedAsset === 'ETH' ? 0.0018 :
-                selectedAsset === 'SOL' ? 0.0025 :
-                  0.0020 // Default
+                0.0020 // Default (XTZ, TRX, XRP, etc.)
     );
 
     const mobileZoomFactor = isMobile ? 5.0 : 1.0;

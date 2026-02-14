@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Modal } from '@/components/ui/Modal';
-import { useOverflowStore } from '@/lib/store';
 
 interface WalletDiscoveryModalProps {
     isOpen: boolean;

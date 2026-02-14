@@ -37,6 +37,7 @@ export async function GET(
     }
 
     // Query user_balances table by user_address and currency
+    // Note: user_balances has no user_tier column; tier defaults to 'free'
     const { data, error } = await supabase
       .from('user_balances')
       .select('balance, updated_at')
@@ -65,7 +66,7 @@ export async function GET(
 
     // Return balance and updated_at timestamp
     return NextResponse.json({
-      balance: parseFloat(data.balance),
+      balance: parseFloat(String(data.balance)),
       updatedAt: data.updated_at,
       tier: 'free'
     });

@@ -99,6 +99,7 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Database error in withdrawal update:', error);
+      // Note: At this point the XTZ has been sent!
       return NextResponse.json(
         {
           success: true,

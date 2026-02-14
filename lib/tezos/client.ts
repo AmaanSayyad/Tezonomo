@@ -59,6 +59,11 @@ export const depositXTZ = async (amount: number): Promise<string> => {
         const wallet = new BeaconWallet({
             name: 'Tezonomo',
             preferredNetwork: NetworkType.MAINNET,
+            // Configure the network once here
+            network: {
+                type: NetworkType.MAINNET,
+                rpcUrl: RPC_URL
+            }
         });
 
         // Check if user has an active account (should be connected already)
