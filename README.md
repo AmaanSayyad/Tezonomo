@@ -37,6 +37,57 @@ Binary options in Web3 are rare; in Web2 they’re often opaque and unfair. Tezo
 
 ---
 
+## User flow
+
+```mermaid
+flowchart LR
+    subgraph Entry[" "]
+        A[Land on Tezonomo]
+    end
+
+    subgraph Onboard["Connect & fund"]
+        B[Connect Temple Wallet]
+        C[Deposit XTZ to house balance]
+        D[Sign tx in wallet]
+    end
+
+    subgraph Play["Trade"]
+        E[Choose asset & mode]
+        F[Classic: UP/DOWN + expiry]
+        G[Box: tap multiplier tile]
+        H[Enter amount & place bet]
+        I[Watch live chart]
+    end
+
+    subgraph Resolve["Settlement"]
+        J[Round expires / price hits tile]
+        K{Pyth price vs target}
+        L[Win: balance + payout]
+        M[Loss: bet deducted]
+    end
+
+    subgraph Exit[" "]
+        N[Withdraw XTZ to wallet]
+    end
+
+    A --> B --> C --> D --> E
+    E --> F
+    E --> G
+    F --> H
+    G --> H
+    H --> I --> J --> K
+    K -->|Hit| L
+    K -->|Miss| M
+    L --> E
+    M --> E
+    L --> N
+    M --> N
+```
+
+**Summary:** User connects wallet → deposits XTZ (one signed tx) → chooses Classic or Box, places bets (no extra signing) → round resolves from Pyth price → balance updates → repeat or withdraw XTZ to wallet.
+
+---
+
 ## System Architecture
 
 Hybrid: **on-chain treasury (Tezos)** + **off-chain game engine + oracle (Pyth)** + **off-chain state (Supabase)**.
@@ -167,6 +218,23 @@ sequenceDiagram
 | **Oracle** | Pyth Network — 20+ feeds |
 | **Backend** | Next.js API Routes, Supabase (PostgreSQL, RPCs) |
 | **Payments** | Tezos treasury (on-chain XTZ), house balance (Supabase) |
+
+---
+
+## Competitive landscape
+
+| | **Tezonomo** | **Web2 binary options** (Binomo, IQ Option, etc.) | **Web3 prediction** (Polymarket, Kalshi) | **Other on-chain binary / derivatives** |
+|--|--------------|---------------------------------------------------|-----------------------------------------|----------------------------------------|
+| **Real-time oracle** | ✅ Pyth (sub-second prices) | ❌ Opaque / synthetic feeds | ⚠️ Event-based or delayed | ❌ Often none or slow oracles |
+| **Settlement speed** | &lt;1 s (off-chain engine) | Variable, often disputed | Days (resolution windows) | Block-time bound |
+| **Trust / provability** | Oracle-bound, audit log | ❌ Opaque, regulatory issues | ✅ On-chain or attested | ⚠️ Varies |
+| **Binary options focus** | ✅ Native (Classic + Box) | ✅ Yes | ❌ Mostly yes/no markets | ⚠️ Rare; often full options |
+| **Deposit / withdraw** | Tezos (XTZ), Temple Wallet | Fiat, KYC | Crypto / fiat, often slow | On-chain, chain speed |
+| **Per-bet signing** | ❌ No (house balance) | ❌ No | ⚠️ Often yes | ✅ Typically every tx |
+| **Multi-asset (crypto, stocks, FX)** | ✅ 20+ via Pyth | ✅ Yes | ⚠️ Limited | ⚠️ Usually crypto only |
+| **Chain** | **Tezos** | N/A | Various | ETH, L2s, etc. |
+
+*Tezonomo combines a real-time oracle (Pyth), Tezos for treasury and value flow, and off-chain execution so users get fast, transparent binary options without signing every bet.*
 
 ---
 
