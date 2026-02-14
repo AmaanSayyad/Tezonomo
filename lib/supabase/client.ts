@@ -19,12 +19,23 @@ if (!supabaseAnonKey) {
   throw new Error('Missing environment variable: NEXT_PUBLIC_SUPABASE_ANON_KEY');
 }
 
-// Create and export Supabase client
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// Create and export Supabase client for public (anon) use
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    persistSession: false, // We don't need session persistence for this use case
+    persistSession: false,
   },
 });
+
+// Create and export Supabase client for admin (service role) use - Server side only
+export const supabaseAdmin = supabaseServiceKey
+  ? createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      persistSession: false,
+    },
+  })
+  : null;
 
 // Type definitions for database tables
 export interface UserBalance {

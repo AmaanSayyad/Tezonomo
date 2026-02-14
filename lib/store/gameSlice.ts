@@ -411,7 +411,8 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
 
       set({
         isPlacingBet: false,
-        error: null
+        error: null,
+        houseBalance: data.remainingBalance // Update house balance immediately
       });
 
       // Return bet info for UI
@@ -541,9 +542,10 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
       ) {
         let won = false;
         if (bet.direction === 'UP') {
-          won = price > bet.strikePrice;
+          // Use finalPrice (visible/amplified) for consistency with chart
+          won = finalPrice > bet.strikePrice;
         } else {
-          won = price < bet.strikePrice;
+          won = finalPrice < bet.strikePrice;
         }
 
         const payout = won ? bet.amount * bet.multiplier : 0;
@@ -577,8 +579,15 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
               currency: network,
               betId: bet.id
             })
-          }).then(() => {
-            if (fetchBalance) fetchBalance(address);
+          }).then(async (res) => {
+            if (res.ok) {
+              const data = await res.json();
+              if (data.newBalance !== undefined) {
+                set({ houseBalance: data.newBalance });
+              }
+            } else if (fetchBalance) {
+              fetchBalance(address);
+            }
           }).catch(console.error);
         } else if (accountType === 'demo' && won) {
           updateBalance(payout, 'add');

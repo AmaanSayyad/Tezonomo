@@ -988,7 +988,7 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
                 fontFamily="monospace"
                 className="font-bold opacity-80"
               >
-                {bet.direction} {bet.amount} BNB {bet.strikePrice && `@ $${bet.strikePrice.toFixed(2)}`}
+                {bet.direction} {bet.amount} XTZ {bet.strikePrice && `@ $${bet.strikePrice.toFixed(2)}`}
               </text>
             </g>
           );

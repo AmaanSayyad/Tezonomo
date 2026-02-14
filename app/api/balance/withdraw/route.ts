@@ -1,7 +1,13 @@
+/**
+ * POST /api/balance/withdraw endpoint
+ * 
+ * Processes XTZ withdrawal from house balance.
+ * Transfers XTZ from treasury to user's Tezos wallet.
+ * Updates Supabase balance accordingly.
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase/client';
-import { ethers } from 'ethers';
-import { transferBNBFromTreasury } from '@/lib/bnb/backend-client';
+import { supabaseAdmin } from '@/lib/supabase/client';
 
 interface WithdrawRequest {
   userAddress: string;
@@ -14,6 +20,10 @@ export async function POST(request: NextRequest) {
     const body: WithdrawRequest = await request.json();
     const { userAddress, amount, currency = 'XTZ' } = body;
 
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database admin access not configured' }, { status: 500 });
+    }
+
     // Validate required fields
     if (!userAddress || amount === undefined || amount === null) {
       return NextResponse.json(
@@ -22,7 +32,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate address using utility (must be Tezos)
+    // Validate address (Tezos only)
     const { isValidTezosAddress } = await import('@/lib/tezos/client');
     if (!isValidTezosAddress(userAddress)) {
       return NextResponse.json(
@@ -39,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Get house balance and status from Supabase and validate
-    const { data: userData, error: userError } = await supabase
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('user_balances')
       .select('balance, status')
       .eq('user_address', userAddress)
@@ -69,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     console.log(`Withdrawal Request: Total=${amount}, Fee=${feeAmount}, Net=${netWithdrawAmount}, Currency=${currency}`);
 
-    // 3. Perform transfer from treasury (Tezos only)
+    // 3. Perform transfer from treasury (Tezos)
     let signature: string;
     try {
       const { transferXTZFromTreasury } = await import('@/lib/tezos/backend-client');
@@ -79,8 +89,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Withdrawal failed: ${e.message}` }, { status: 500 });
     }
 
-    // 3. Update Supabase balance using RPC
-    const { data, error } = await supabase.rpc('update_balance_for_withdrawal', {
+    // 4. Update Supabase balance using RPC
+    const { data, error } = await supabaseAdmin.rpc('update_balance_for_withdrawal', {
       p_user_address: userAddress,
       p_withdrawal_amount: amount,
       p_currency: currency,
@@ -89,12 +99,11 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Database error in withdrawal update:', error);
-      // Note: At this point the BNB has been sent!
       return NextResponse.json(
         {
           success: true,
           txHash: signature,
-          warning: 'BNB sent but balance update failed. Please contact support.',
+          warning: 'XTZ sent but balance update failed. Please contact support.',
           error: error.message
         },
         { status: 200 }

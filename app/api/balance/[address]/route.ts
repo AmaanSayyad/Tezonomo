@@ -10,8 +10,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase/client';
-import { ethers } from 'ethers';
+import { supabaseAdmin as supabase } from '@/lib/supabase/client';
 
 export async function GET(
   request: NextRequest,
@@ -23,6 +22,10 @@ export async function GET(
 
     const { searchParams } = new URL(request.url);
     const currency = searchParams.get('currency') || 'XTZ';
+
+    if (!supabase) {
+      return NextResponse.json({ error: 'Database service not initialized' }, { status: 500 });
+    }
 
     // Validate address (Tezos only)
     const { isValidTezosAddress } = await import('@/lib/tezos/client');
@@ -36,7 +39,7 @@ export async function GET(
     // Query user_balances table by user_address and currency
     const { data, error } = await supabase
       .from('user_balances')
-      .select('balance, updated_at, user_tier')
+      .select('balance, updated_at')
       .eq('user_address', address)
       .eq('currency', currency)
       .single();
@@ -64,7 +67,7 @@ export async function GET(
     return NextResponse.json({
       balance: parseFloat(data.balance),
       updatedAt: data.updated_at,
-      tier: data.user_tier || 'free'
+      tier: 'free'
     });
   } catch (error) {
     // Handle unexpected errors

@@ -152,6 +152,12 @@ export const createBalanceSlice: StateCreator<BalanceState> = (set, get) => ({
         error: null
       });
 
+      // Update wallet balance after on-chain transaction
+      const walletState = get() as any;
+      if (walletState.refreshWalletBalance) {
+        walletState.refreshWalletBalance();
+      }
+
       // Secondary check after a delay to ensure eventual consistency
       setTimeout(() => get().fetchBalance(address), 1500);
 
@@ -202,6 +208,12 @@ export const createBalanceSlice: StateCreator<BalanceState> = (set, get) => ({
         isLoading: false,
         error: null
       });
+
+      // Update wallet balance after on-chain transaction
+      const walletState = get() as any;
+      if (walletState.refreshWalletBalance) {
+        walletState.refreshWalletBalance();
+      }
 
       // Secondary check after a delay to ensure eventual consistency
       setTimeout(() => get().fetchBalance(address), 1500);

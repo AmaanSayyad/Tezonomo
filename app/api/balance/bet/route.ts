@@ -11,8 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase/client';
-import { ethers } from 'ethers';
+import { supabaseAdmin } from '@/lib/supabase/client';
 
 interface BetRequest {
   userAddress: string;
@@ -35,6 +34,10 @@ export async function POST(request: NextRequest) {
     // Parse request body
     const body: BetRequest = await request.json();
     const { userAddress, betAmount, currency = 'XTZ', roundId, targetPrice, isOver, multiplier, targetCell } = body;
+
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database admin access not configured' }, { status: 500 });
+    }
 
     // Validate required fields
     if (!userAddress || betAmount === undefined || betAmount === null) {
@@ -83,7 +86,7 @@ export async function POST(request: NextRequest) {
     // - Validating user exists
     // - Validating sufficient balance
     // - Inserting audit log entry with operation_type='bet_placed'
-    const { data, error } = await supabase.rpc('deduct_balance_for_bet', {
+    const { data, error } = await supabaseAdmin.rpc('deduct_balance_for_bet', {
       p_user_address: userAddress,
       p_bet_amount: betAmount,
       p_currency: currency,

@@ -47,7 +47,7 @@ export const GameBoard: React.FC = () => {
 
   // Forced currency symbol for Tezonomo
   const currencySymbol = 'XTZ';
-  const blitzEntryFee = 0.5; // Adjusted for XTZ value
+  const blitzEntryFee = 0.01; // Adjusted for XTZ value
 
   const handleEnterBlitz = async () => {
     if (!isConnected || !address) {
@@ -63,17 +63,22 @@ export const GameBoard: React.FC = () => {
     try {
       setIsActivatingBlitz(true);
 
-      // Tezos Blitz entry simulation (payment would be an on-chain transaction)
-      toast.info(`Initiating ${blitzEntryFee} XTZ Blitz Entry...`);
+      // Real Tezos Blitz entry payment
+      toast.info(`Please confirm ${blitzEntryFee} XTZ payment in your wallet...`);
 
-      // In a real implementation, we would call a Tezos contract here
-      // For now, we simulate the success if connected
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const { depositXTZ } = await import('@/lib/tezos/client');
+      const txHash = await depositXTZ(blitzEntryFee);
+
+      console.log(`Blitz entry payment confirmed: ${txHash}`);
 
       toast.success("Payment successful! Blitz Mode enabled.");
       // Update store state
       enableBlitzAccess();
-      refreshWalletBalance();
+
+      // Update wallet balance after on-chain transaction
+      if (refreshWalletBalance) {
+        refreshWalletBalance();
+      }
     } catch (err: any) {
       console.error("Blitz entry failed:", err);
       toast.error(err.message || "Failed to enter Blitz Round");

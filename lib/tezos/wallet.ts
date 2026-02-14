@@ -3,13 +3,14 @@ import { TezosToolkit } from '@taquito/taquito';
 import { NetworkType } from '@airgap/beacon-sdk';
 import { useOverflowStore } from '@/lib/store';
 
-const RPC_URL = 'https://mainnet.ecadinfra.com';
+const RPC_URL = process.env.NEXT_PUBLIC_TEZOS_RPC_URL || 'https://mainnet.ecadinfra.com';
 const tezos = new TezosToolkit(RPC_URL);
 
 let wallet: BeaconWallet | null = null;
 
 /**
  * Get or create wallet instance
+ * IMPORTANT: Network configuration must be provided at instantiation
  */
 export const getWallet = () => {
     if (typeof window === 'undefined') return null;
@@ -17,6 +18,11 @@ export const getWallet = () => {
         wallet = new BeaconWallet({
             name: 'Tezonomo',
             preferredNetwork: NetworkType.MAINNET,
+            // Configure the network once here
+            network: {
+                type: NetworkType.MAINNET,
+                rpcUrl: RPC_URL
+            }
         });
     }
     return wallet;
@@ -30,12 +36,9 @@ export const connectTezos = async () => {
     if (!wallet) return;
 
     try {
-        await wallet.requestPermissions({
-            network: {
-                type: NetworkType.MAINNET,
-                rpcUrl: RPC_URL,
-            },
-        });
+        // Updated Beacon SDK behavior: network should not be passed to requestPermissions
+        // if it was already provided during instantiation.
+        await wallet.requestPermissions();
 
         const address = await wallet.getPKH();
         const store = useOverflowStore.getState();

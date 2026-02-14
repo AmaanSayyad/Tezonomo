@@ -1,17 +1,13 @@
 /**
  * POST /api/balance/deposit endpoint
  * 
- * Task: 7.2 Update deposit endpoint for Sui
- * Requirements: 2.4
- * 
- * Called by blockchain event listener after deposit transaction.
+ * Called after user sends XTZ to treasury via Beacon wallet.
  * Updates Supabase balance by adding deposit amount.
  * Inserts audit log entry with operation_type='deposit'.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase/client';
-import { ethers } from 'ethers';
+import { supabaseAdmin } from '@/lib/supabase/client';
 
 interface DepositRequest {
   userAddress: string;
@@ -25,6 +21,10 @@ export async function POST(request: NextRequest) {
     // Parse request body
     const body: DepositRequest = await request.json();
     const { userAddress, amount, txHash, currency = 'XTZ' } = body;
+
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database admin access not configured' }, { status: 500 });
+    }
 
     // Validate required fields
     if (!userAddress || amount === undefined || amount === null || !txHash) {
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Call update_balance_for_deposit stored procedure
-    const { data, error } = await supabase.rpc('update_balance_for_deposit', {
+    const { data, error } = await supabaseAdmin.rpc('update_balance_for_deposit', {
       p_user_address: userAddress,
       p_deposit_amount: amount,
       p_currency: currency,

@@ -10,7 +10,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase/client';
+import { supabaseAdmin } from '@/lib/supabase/client';
 
 interface PayoutRequest {
   userAddress: string;
@@ -24,6 +24,10 @@ export async function POST(request: NextRequest) {
     // Parse request body
     const body: PayoutRequest = await request.json();
     const { userAddress, payoutAmount, currency = 'XTZ', betId } = body;
+
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: 'Database admin access not configured' }, { status: 500 });
+    }
 
     // Validate required fields
     if (!userAddress || payoutAmount === undefined || payoutAmount === null || !betId) {
@@ -55,7 +59,7 @@ export async function POST(request: NextRequest) {
     // - Atomic balance update with row-level locking
     // - Creating user record if it doesn't exist
     // - Inserting audit log entry with operation_type='bet_won'
-    const { data, error } = await supabase.rpc('credit_balance_for_payout', {
+    const { data, error } = await supabaseAdmin.rpc('credit_balance_for_payout', {
       p_user_address: userAddress,
       p_payout_amount: payoutAmount,
       p_currency: currency,

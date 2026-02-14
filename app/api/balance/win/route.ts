@@ -6,8 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase/client';
-import { ethers } from 'ethers';
+import { supabaseAdmin } from '@/lib/supabase/client';
 
 interface WinRequest {
     userAddress: string;
@@ -21,6 +20,10 @@ export async function POST(request: NextRequest) {
         // Parse request body
         const body: WinRequest = await request.json();
         const { userAddress, winAmount, currency = 'XTZ', betId } = body;
+
+        if (!supabaseAdmin) {
+            return NextResponse.json({ error: 'Database admin access not configured' }, { status: 500 });
+        }
 
         // Validate required fields
         if (!userAddress || winAmount === undefined || winAmount === null) {
@@ -48,7 +51,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Call credit_balance_for_payout stored procedure
-        const { data, error } = await supabase.rpc('credit_balance_for_payout', {
+        const { data, error } = await supabaseAdmin.rpc('credit_balance_for_payout', {
             p_user_address: userAddress,
             p_payout_amount: winAmount,
             p_currency: currency,

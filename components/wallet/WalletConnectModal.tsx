@@ -8,28 +8,13 @@ import { X, Globe } from 'lucide-react';
 export const WalletConnectModal: React.FC = () => {
     const isOpen = useOverflowStore(state => state.isConnectModalOpen);
     const setOpen = useOverflowStore(state => state.setConnectModalOpen);
-    const setPreferredNetwork = useOverflowStore(state => state.setPreferredNetwork);
 
     const handleTezosConnect = async () => {
         try {
-            const { BeaconWallet } = await import('@taquito/beacon-wallet');
-            const { NetworkType } = await import('@airgap/beacon-sdk');
-
-            const wallet = new BeaconWallet({
-                name: "Tezonomo Protocol",
-                preferredNetwork: NetworkType.MAINNET
-            });
-
-            await wallet.requestPermissions();
-            const address = await wallet.getPKH();
+            const { connectTezos } = await import('@/lib/tezos/wallet');
+            const address = await connectTezos();
 
             if (address) {
-                setPreferredNetwork('XTZ');
-                useOverflowStore.getState().setNetwork('XTZ');
-                useOverflowStore.getState().setAddress(address);
-                useOverflowStore.getState().setIsConnected(true);
-                // Fetch Tezos mainnet XTZ balance
-                useOverflowStore.getState().refreshWalletBalance();
                 // Fetch house balance for Tezos
                 useOverflowStore.getState().fetchBalance(address);
             }
