@@ -35,7 +35,7 @@ export const connectTezos = async () => {
                 type: NetworkType.MAINNET,
                 rpcUrl: RPC_URL,
             },
-        });
+        } as Parameters<BeaconWallet['requestPermissions']>[0]);
 
         const address = await wallet.getPKH();
         const store = useOverflowStore.getState();

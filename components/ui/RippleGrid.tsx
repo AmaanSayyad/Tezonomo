@@ -16,16 +16,17 @@ const RippleGrid = ({
     mouseInteraction = true,
     mouseInteractionRadius = 1
 }) => {
-    const containerRef = useRef(null);
+    const containerRef = useRef<HTMLDivElement | null>(null);
     const mousePositionRef = useRef({ x: 0.5, y: 0.5 });
     const targetMouseRef = useRef({ x: 0.5, y: 0.5 });
     const mouseInfluenceRef = useRef(0);
-    const uniformsRef = useRef(null);
+    const uniformsRef = useRef<Record<string, { value: unknown }> | null>(null);
 
     useEffect(() => {
-        if (!containerRef.current) return;
+        const container = containerRef.current;
+        if (!container) return;
 
-        const hexToRgb = hex => {
+        const hexToRgb = (hex: string) => {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result
                 ? [parseInt(result[1], 16) / 255, parseInt(result[2], 16) / 255, parseInt(result[3], 16) / 255]
@@ -41,7 +42,7 @@ const RippleGrid = ({
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.canvas.style.width = '100%';
         gl.canvas.style.height = '100%';
-        containerRef.current.appendChild(gl.canvas);
+        container.appendChild(gl.canvas);
 
         const vert = `
 attribute vec2 position;
@@ -170,12 +171,14 @@ void main() {
         const mesh = new Mesh(gl, { geometry, program });
 
         const resize = () => {
-            const { clientWidth: w, clientHeight: h } = containerRef.current;
+            const el = containerRef.current;
+            if (!el) return;
+            const { clientWidth: w, clientHeight: h } = el;
             renderer.setSize(w, h);
             uniforms.iResolution.value = [w, h];
         };
 
-        const handleMouseMove = e => {
+        const handleMouseMove = (e: MouseEvent) => {
             if (!mouseInteraction || !containerRef.current) return;
             const rect = containerRef.current.getBoundingClientRect();
             const x = (e.clientX - rect.left) / rect.width;
@@ -195,13 +198,13 @@ void main() {
 
         window.addEventListener('resize', resize);
         if (mouseInteraction) {
-            containerRef.current.addEventListener('mousemove', handleMouseMove);
-            containerRef.current.addEventListener('mouseenter', handleMouseEnter);
-            containerRef.current.addEventListener('mouseleave', handleMouseLeave);
+            container.addEventListener('mousemove', handleMouseMove);
+            container.addEventListener('mouseenter', handleMouseEnter);
+            container.addEventListener('mouseleave', handleMouseLeave);
         }
         resize();
 
-        const render = t => {
+        const render = (t: number) => {
             uniforms.iTime.value = t * 0.001;
 
             const lerpFactor = 0.1;
@@ -220,7 +223,6 @@ void main() {
 
         requestAnimationFrame(render);
 
-        const container = containerRef.current;
         return () => {
             window.removeEventListener('resize', resize);
             if (mouseInteraction && container) {
@@ -237,7 +239,7 @@ void main() {
     useEffect(() => {
         if (!uniformsRef.current) return;
 
-        const hexToRgb = hex => {
+        const hexToRgb = (hex: string) => {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result
                 ? [parseInt(result[1], 16) / 255, parseInt(result[2], 16) / 255, parseInt(result[3], 16) / 255]

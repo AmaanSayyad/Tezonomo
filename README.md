@@ -61,7 +61,7 @@ flowchart LR
 
     subgraph Resolve["Settlement"]
         J[Round expires / price hits tile]
-        K{Pyth price vs target}
+        K[Pyth price vs target]
         L[Win: balance + payout]
         M[Loss: bet deducted]
     end

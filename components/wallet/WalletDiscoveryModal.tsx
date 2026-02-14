@@ -2,11 +2,6 @@
 
 import React from 'react';
 import { Modal } from '@/components/ui/Modal';
-import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { useModal } from 'connectkit';
-import { useAccount } from 'wagmi';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { useOverflowStore } from '@/lib/store';
 
 interface WalletDiscoveryModalProps {
     isOpen: boolean;
