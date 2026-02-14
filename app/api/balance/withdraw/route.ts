@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase/client';
 import { ethers } from 'ethers';
-import { transferBNBFromTreasury } from '@/lib/bnb/backend-client';
 
 interface WithdrawRequest {
   userAddress: string;
@@ -89,12 +88,12 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Database error in withdrawal update:', error);
-      // Note: At this point the BNB has been sent!
+      // Note: At this point the XTZ has been sent!
       return NextResponse.json(
         {
           success: true,
           txHash: signature,
-          warning: 'BNB sent but balance update failed. Please contact support.',
+          warning: 'XTZ sent but balance update failed. Please contact support.',
           error: error.message
         },
         { status: 200 }
