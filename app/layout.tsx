@@ -22,13 +22,11 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  title: "Binomo",
-  description: "Real-time BTC/BNB price prediction platform on BNB Smart Chain",
-  icons: {
-    icon: "/overflowlogo.ico",
-    shortcut: "/overflowlogo.ico",
-    apple: "/overflowlogo.ico",
-  },
+  title: 'Tezonomo Protocol | Next-Gen Tezos Binary Trading',
+  description: 'Trade XTZ with instant settlement on the Tezos blockchain. Experience high-frequency binary options with Tezonomo Protocol.',
+  keywords: ['Tezos', 'XTZ', 'Binary Options', 'Trading', 'DeFi', 'Tezonomo'],
+  authors: [{ name: 'Tezonomo Team' }],
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
 };
 
 export default function RootLayout({

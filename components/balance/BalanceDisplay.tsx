@@ -13,11 +13,8 @@ import { useToast } from '@/lib/hooks/useToast';
  * 
  * Displays the user's house balance with controls for deposit and withdrawal
  * 
- * Task: 8.1 Create BalanceDisplay component
- * Requirements: 8.1
- * 
  * Features:
- * - Display current house balance with USDC symbol
+ * - Display current house balance with XTZ symbol
  * - Refresh button to fetch latest balance
  * - Deposit and Withdraw buttons with modals
  * - Show loading state while fetching
@@ -111,7 +108,7 @@ export const BalanceDisplay: React.FC = () => {
   return (
     <>
       <div className="bg-black/30 rounded-xl border border-white/5 overflow-hidden">
-        {/* Secret Demo Header - Only visible when activated via BINOMO logo click */}
+        {/* Secret Demo Header - Only visible when activated via Tezonomo logo click */}
         {accountType === 'demo' && (
           <div className="flex bg-yellow-500/10 p-1 border-b border-yellow-500/20 items-center justify-between px-3">
             <span className="text-[9px] font-black text-yellow-500 uppercase tracking-widest">
@@ -129,7 +126,7 @@ export const BalanceDisplay: React.FC = () => {
         <div className="p-3 space-y-2">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h3 className={`text-xs font-bold font-mono uppercase tracking-wider ${accountType === 'demo' ? 'text-yellow-400' : 'text-purple-400'
+            <h3 className={`text-xs font-bold font-mono uppercase tracking-wider ${accountType === 'demo' ? 'text-yellow-400' : 'text-blue-400'
               }`}>
               {accountType === 'demo' ? 'Practice Balance' : 'House Balance'}
             </h3>
@@ -139,7 +136,7 @@ export const BalanceDisplay: React.FC = () => {
               <button
                 onClick={handleRefresh}
                 disabled={!address || isLoading || isRefreshing}
-                className="text-purple-400 hover:text-purple-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="text-blue-400 hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title="Refresh balance"
               >
                 <svg
@@ -162,7 +159,7 @@ export const BalanceDisplay: React.FC = () => {
           {/* Balance Display */}
           <div className={`bg-gradient-to-br rounded-lg p-2.5 border ${accountType === 'demo'
             ? 'from-yellow-500/10 to-transparent border-yellow-500/30'
-            : 'from-purple-600/10 to-transparent border-purple-600/30'
+            : 'from-blue-600/10 to-transparent border-blue-600/30'
             }`}>
             <p className="text-gray-400 text-[10px] uppercase tracking-wider mb-0.5 font-mono">
               Available Credits
@@ -177,16 +174,16 @@ export const BalanceDisplay: React.FC = () => {
               <div className="flex items-center gap-1.5">
                 <div className="flex items-center gap-1">
                   <img
-                    src={network === 'SUI' ? '/logos/sui-logo.png' : network === 'SOL' ? '/logos/solana-sol-logo.png' : network === 'XLM' ? '/logos/stellar-xlm-logo.png' : network === 'XTZ' ? '/logos/tezos-xtz-logo.png' : '/logos/bnb-bnb-logo.png'}
-                    alt={network || 'Network'}
+                    src="/logos/tezos-xtz-logo.png"
+                    alt="Tezos"
                     className="w-4 h-4 object-contain"
                   />
-                  <p className={`text-xl font-bold font-mono ${accountType === 'demo' ? 'text-yellow-400' : 'text-purple-400'}`}>
+                  <p className={`text-xl font-bold font-mono ${accountType === 'demo' ? 'text-yellow-400' : 'text-blue-400'}`}>
                     {formattedBalance}
                   </p>
                 </div>
-                <span className={`text-sm font-mono ${accountType === 'demo' ? 'text-yellow-400/70' : 'text-purple-400/70'}`}>
-                  {network === 'SUI' ? 'USDC' : network === 'SOL' ? 'SOL' : network === 'XLM' ? 'XLM' : network === 'XTZ' ? 'XTZ' : 'BNB'}
+                <span className={`text-sm font-mono ${accountType === 'demo' ? 'text-yellow-400/70' : 'text-blue-400/70'}`}>
+                  XTZ
                 </span>
               </div>
             )}

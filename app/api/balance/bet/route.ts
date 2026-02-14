@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body: BetRequest = await request.json();
-    const { userAddress, betAmount, currency = 'BNB', roundId, targetPrice, isOver, multiplier, targetCell } = body;
+    const { userAddress, betAmount, currency = 'XTZ', roundId, targetPrice, isOver, multiplier, targetCell } = body;
 
     // Validate required fields
     if (!userAddress || betAmount === undefined || betAmount === null) {
@@ -44,11 +44,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate address using utility
-    const { isValidAddress } = await import('@/lib/utils/address');
-    if (!(await isValidAddress(userAddress))) {
+    // Validate address using utility (must be Tezos)
+    const { isValidTezosAddress } = await import('@/lib/tezos/client');
+    if (!isValidTezosAddress(userAddress)) {
       return NextResponse.json(
-        { error: 'Invalid wallet address format' },
+        { error: 'Invalid Tezos wallet address format' },
         { status: 400 }
       );
     }

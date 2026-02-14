@@ -16,11 +16,11 @@ export default function Home() {
   const [demoActivated, setDemoActivated] = useState(false);
 
   // Get store actions for demo mode
-  const setAddress = useStore((state) => state.setAddress);
-  const setBalance = useStore((state) => state.setBalance);
-  const setIsConnected = useStore((state) => state.setIsConnected);
-  const toggleAccountType = useStore((state) => state.toggleAccountType);
-  const accountType = useStore((state) => state.accountType);
+  const setAddress = useStore((state: any) => state.setAddress);
+  const setBalance = useStore((state: any) => state.setBalance);
+  const setIsConnected = useStore((state: any) => state.setIsConnected);
+  const toggleAccountType = useStore((state: any) => state.toggleAccountType);
+  const accountType = useStore((state: any) => state.accountType);
   const userTier = useUserTier();
 
   const tierIcon = userTier === 'vip' ? '⬢' : userTier === 'standard' ? '♢' : '△';
@@ -37,8 +37,8 @@ export default function Home() {
     // Check if 3 clicks reached
     if (newCount >= 3) {
       // Activate demo mode
-      setAddress('0xDEMO_1234567890');
-      setBalance(50); // 50 BNB is reasonable
+      setAddress('tz1DEMO_1234567890');
+      setBalance(50); // 50 XTZ is reasonable
       setIsConnected(true);
       if (accountType === 'real') toggleAccountType();
       setDemoActivated(true);
@@ -62,10 +62,10 @@ export default function Home() {
           <h1 className="flex items-center gap-1 sm:gap-3">
             <span
               onClick={handleOverflowClick}
-              className="text-lg sm:text-3xl font-black tracking-tighter sm:tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-400 to-white cursor-pointer select-none"
+              className="text-lg sm:text-3xl font-black tracking-tighter sm:tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-400 to-white cursor-pointer select-none"
               style={{ fontFamily: 'var(--font-orbitron)' }}
             >
-              BINOMO
+              TEZONOMO
             </span>
             {demoActivated && (
               <span className="text-green-400 text-[10px] font-mono font-normal border border-green-400/50 px-2 py-0.5 rounded bg-green-400/10 animate-pulse">
@@ -86,7 +86,7 @@ export default function Home() {
 
           <button
             onClick={() => setIsTourOpen(true)}
-            className="flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-tighter sm:tracking-widest border border-purple-500/20 transition-all active:scale-95"
+            className="flex items-center gap-1 sm:gap-2 px-1.5 sm:px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-tighter sm:tracking-widest border border-blue-500/20 transition-all active:scale-95"
           >
             <span className="text-xs sm:text-sm">✨</span>
             <span className="hidden xs:inline">Tour</span>

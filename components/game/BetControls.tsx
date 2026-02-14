@@ -62,7 +62,7 @@ export const BetControls: React.FC<BetControlsProps> = ({
 
     // Check house balance instead of wallet balance
     if (amount > houseBalance) {
-      setError(`Insufficient house balance. You have ${houseBalance.toFixed(4)} ${network === 'SUI' ? 'USDC' : network === 'SOL' ? 'SOL' : 'BNB'}. Please deposit more.`);
+      setError(`Insufficient house balance. You have ${houseBalance.toFixed(4)} XTZ. Please deposit more.`);
       return false;
     }
 
@@ -86,14 +86,14 @@ export const BetControls: React.FC<BetControlsProps> = ({
         {/* House Balance */}
         {isConnected && (
           <div className="bg-gray-900 rounded p-3">
-            <p className="text-gray-400 text-xs uppercase tracking-wider">House Balance</p>
-            <p className="text-white text-lg font-bold">{houseBalance.toFixed(4)} {network === 'SUI' ? 'USDC' : network === 'SOL' ? 'SOL' : 'BNB'}</p>
+            <p className="text-gray-400 text-xs uppercase tracking-wider font-mono">House Balance</p>
+            <p className="text-blue-400 text-lg font-bold font-mono">{houseBalance.toFixed(4)} XTZ</p>
           </div>
         )}
 
         {/* Bet Amount Input */}
         <div>
-          <label className="block text-gray-400 text-sm mb-2 font-mono uppercase tracking-wider">Bet Amount ({network === 'SUI' ? 'USDC' : network === 'SOL' ? 'SOL' : 'BNB'})</label>
+          <label className="block text-gray-400 text-sm mb-2 font-mono uppercase tracking-wider">Bet Amount (XTZ)</label>
           <input
             type="number"
             value={betAmount}
@@ -102,7 +102,7 @@ export const BetControls: React.FC<BetControlsProps> = ({
             min="0"
             step="0.01"
             disabled={!isConnected || !!activeRound}
-            className="w-full bg-black/50 border border-white/10 rounded px-4 py-2 text-white font-mono focus:outline-none focus:border-neon-blue focus:shadow-[0_0_10px_rgba(0,240,255,0.3)] disabled:opacity-50 transition-all"
+            className="w-full bg-black/50 border border-blue-500/20 rounded px-4 py-2 text-white font-mono focus:outline-none focus:border-blue-500 focus:shadow-[0_0_10px_rgba(59,130,246,0.3)] disabled:opacity-50 transition-all"
           />
         </div>
 
@@ -113,7 +113,7 @@ export const BetControls: React.FC<BetControlsProps> = ({
               key={amount}
               onClick={() => onBetAmountChange(amount)}
               disabled={!isConnected || !!activeRound}
-              className="bg-white/5 border border-white/5 hover:border-white/20 hover:bg-white/10 text-white py-2 rounded text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed font-mono"
+              className="bg-blue-500/5 border border-blue-500/10 hover:border-blue-500/30 hover:bg-blue-500/10 text-white py-2 rounded text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed font-mono"
             >
               {amount}
             </button>
@@ -126,16 +126,16 @@ export const BetControls: React.FC<BetControlsProps> = ({
             <p className="text-gray-400 text-xs uppercase tracking-wider mb-1 font-mono">Selected Target</p>
             <p className="text-white font-semibold flex items-center gap-2">
               {selectedTargetCell.label}
-              <span className="text-xs bg-white/10 px-1.5 rounded text-gray-300 font-normal">x{selectedTargetCell.multiplier}</span>
+              <span className="text-xs bg-blue-500/20 px-1.5 rounded text-blue-300 font-normal">x{selectedTargetCell.multiplier}</span>
             </p>
           </div>
         )}
 
         {/* Potential Payout */}
         {selectedTarget && betAmount && parseFloat(betAmount) > 0 && (
-          <div className="bg-neon-blue/10 border border-neon-blue/50 rounded p-3 shadow-[0_0_15px_rgba(0,240,255,0.1)]">
-            <p className="text-neon-blue text-xs uppercase tracking-wider mb-1 font-mono">Potential Win</p>
-            <p className="text-neon-blue text-2xl font-bold font-mono text-shadow-neon">{potentialPayout} {network === 'SUI' ? 'USDC' : network === 'SOL' ? 'SOL' : 'BNB'}</p>
+          <div className="bg-blue-500/10 border border-blue-500/50 rounded p-3 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
+            <p className="text-blue-400 text-xs uppercase tracking-wider mb-1 font-mono">Potential Win</p>
+            <p className="text-blue-400 text-2xl font-bold font-mono">{potentialPayout} XTZ</p>
           </div>
         )}
 

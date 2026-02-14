@@ -44,7 +44,7 @@ const TOUR_STEPS: TourStep[] = [
     {
         target: '[data-tour="deposit-section"]',
         title: 'Quick Deposit',
-        content: 'Easily deposit BNB or SOL to start trading. Transactions are instant and secure.',
+        content: 'Easily deposit XTZ to start trading. Transactions are instant and secure on Tezos.',
         position: 'top'
     }
 ];
@@ -63,7 +63,7 @@ export const QuickTour: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
         ...(isConnected ? [] : [{
             target: '[data-tour="connect-button"]',
             title: 'Welcome! Connect First',
-            content: 'Start by connecting your wallet. We support both BNB Chain and Solana for a seamless trading experience.',
+            content: 'Start by connecting your wallet. We support Tezos for a seamless trading experience.',
             position: 'bottom' as const
         }]),
         {
@@ -94,7 +94,7 @@ export const QuickTour: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
             target: '[data-tour="deposit-section"]',
             title: 'Manage Your Funds',
             content: isConnected
-                ? 'Easily deposit BNB or SOL to start trading. Your house balance is updated instantly.'
+                ? 'Easily deposit XTZ to start trading. Your house balance is updated instantly.'
                 : 'After connecting, you can manage your deposits and withdrawals right here.',
             position: 'top' as const
         }
@@ -107,7 +107,7 @@ export const QuickTour: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
         const step = steps[currentStep];
         if (!step) return;
 
-        if (step.target === '[data-tour="classic-mode"]') setGameMode('binomo');
+        if (step.target === '[data-tour="classic-mode"]') setGameMode('tezonomo');
         if (step.target === '[data-tour="box-mode"]') setGameMode('box');
         if (step.target === '[data-tour="wallet-tab"]') setActiveTab('bet');
         if (step.target === '[data-tour="deposit-section"]') setActiveTab('wallet');
@@ -223,7 +223,7 @@ export const QuickTour: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                     width: targetRect.width + 16,
                     height: targetRect.height + 16,
                 }}
-                className="absolute border-2 border-purple-500 rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.5)] pointer-events-none"
+                className="absolute border-2 border-blue-500 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.5)] pointer-events-none"
             />
 
             {/* Tooltip */}
@@ -239,7 +239,7 @@ export const QuickTour: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                 className="absolute w-[300px] bg-[#0d0d0d] border border-white/10 rounded-2xl p-5 shadow-2xl pointer-events-auto backdrop-blur-xl"
             >
                 <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-purple-400 font-bold text-sm uppercase tracking-wider">
+                    <h3 className="text-blue-400 font-bold text-sm uppercase tracking-wider">
                         {currentStepData.title}
                     </h3>
                     <span className="text-[10px] text-gray-500 font-mono">
@@ -270,7 +270,7 @@ export const QuickTour: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                         )}
                         <button
                             onClick={handleNext}
-                            className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-purple-500/20 transition-all"
+                            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-blue-500/20 transition-all"
                         >
                             {currentStep === steps.length - 1 ? 'Finish' : 'Next'}
                         </button>

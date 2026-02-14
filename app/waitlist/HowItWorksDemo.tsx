@@ -6,11 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // --- Assets / Icons ---
 // Reused from previous code
 const CHAINS = [
-    { name: 'Solana', id: 'SOL', color: '#9945FF', logo: '/logos/solana-sol-logo.png' },
-    { name: 'Sui', id: 'SUI', color: '#4DA2FF', logo: '/logos/sui-logo.png' },
-    { name: 'Near', id: 'NEAR', color: '#000000', logo: '/logos/near-logo.svg', bg: 'white' },
-    { name: 'BNB', id: 'BNB', color: '#F3BA2F', logo: '/logos/bnb-bnb-logo.png' },
-    { name: 'Stellar', id: 'XLM', color: '#7D00FF', logo: '/logos/stellar-xlm-logo.png' },
+    { name: 'Tezos', id: 'XTZ', color: '#2C7DF7', logo: '/logos/tezos-xtz-logo.png' },
 ];
 
 export default function HowItWorksDemo() {
@@ -18,8 +14,8 @@ export default function HowItWorksDemo() {
 
     const features = [
         {
-            title: "Multi-Chain Access",
-            desc: "Connect instantly with Solana, Sui, Near, BNB, or Stellar. No bridging required.",
+            title: "Tezos Ecosystem",
+            desc: "Connect instantly with your Tezos wallet. Seamlessly interact with the XTZ ecosystem.",
             component: <ChainSelectVisual />
         },
         {
@@ -58,25 +54,25 @@ export default function HowItWorksDemo() {
                         className={`
                             relative py-6 px-4 rounded-2xl border transition-all duration-300 text-left group overflow-hidden
                             ${activeFeature === i
-                                ? 'bg-[#1A1A22] border-purple-500/50 shadow-[0_0_30px_rgba(168,85,247,0.15)]'
+                                ? 'bg-[#1A1A22] border-blue-500/50 shadow-[0_0_30px_rgba(44,125,247,0.15)]'
                                 : 'bg-black/40 border-white/5 hover:bg-white/5 hover:border-white/10'
                             }
                         `}
                     >
-                        <div className={`text-xs font-mono font-bold uppercase tracking-widest mb-3 transition-colors ${activeFeature === i ? 'text-purple-400' : 'text-gray-500'}`}>
+                        <div className={`text-xs font-mono font-bold uppercase tracking-widest mb-3 transition-colors ${activeFeature === i ? 'text-blue-400' : 'text-gray-500'}`}>
                             Step 0{i + 1}
                         </div>
                         <h3 className={`text-lg font-bold mb-2 leading-tight transition-colors ${activeFeature === i ? 'text-white' : 'text-gray-400'}`}>
                             {feature.title}
                         </h3>
                         {/* Shorter desc for tab view */}
-                        <div className={`h-1 w-8 rounded-full transition-colors ${activeFeature === i ? 'bg-purple-500' : 'bg-gray-800'}`} />
+                        <div className={`h-1 w-8 rounded-full transition-colors ${activeFeature === i ? 'bg-blue-500' : 'bg-gray-800'}`} />
 
                         {/* Active Indicator Line */}
                         {activeFeature === i && (
                             <motion.div
                                 layoutId="activeLine"
-                                className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-blue-500"
+                                className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-500"
                             />
                         )}
 
@@ -86,7 +82,7 @@ export default function HowItWorksDemo() {
                                 initial={{ width: "0%" }}
                                 animate={{ width: "100%" }}
                                 transition={{ duration: 4, ease: "linear" }}
-                                className="absolute bottom-0 left-0 h-1 bg-purple-500 z-10"
+                                className="absolute bottom-0 left-0 h-1 bg-blue-500 z-10"
                             />
                         )}
                     </button>
@@ -116,11 +112,11 @@ export default function HowItWorksDemo() {
 
                 {/* Common Header UI (Static decoration) */}
                 <div className="absolute top-0 left-0 right-0 h-16 flex items-center justify-between px-6 border-b border-white/5 bg-black/20 backdrop-blur-sm z-30 pointer-events-none">
-                    <div className="text-xl font-black tracking-tighter text-white" style={{ fontFamily: 'var(--font-orbitron)' }}>BINOMO</div>
+                    <div className="text-xl font-black tracking-tighter text-white" style={{ fontFamily: 'var(--font-orbitron)' }}>TEZONOMO</div>
                     <div className="flex gap-3">
                         <div className="px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-lg text-[10px] font-bold text-amber-500 uppercase">Mainnet</div>
-                        <div className={`px-3 py-1 border border-white/10 rounded-lg text-xs font-mono text-white flex items-center gap-2 transition-colors ${activeFeature === 0 ? 'bg-purple-500/20 border-purple-500/50' : 'bg-[#15151A]'}`}>
-                            <div className={`w-2 h-2 rounded-full ${activeFeature === 0 ? 'bg-purple-400 animate-ping' : 'bg-green-500'}`} />
+                        <div className={`px-3 py-1 border border-white/10 rounded-lg text-xs font-mono text-white flex items-center gap-2 transition-colors ${activeFeature === 0 ? 'bg-blue-500/20 border-blue-500/50' : 'bg-[#15151A]'}`}>
+                            <div className={`w-2 h-2 rounded-full ${activeFeature === 0 ? 'bg-blue-400 animate-ping' : 'bg-green-500'}`} />
                             {activeFeature === 0 ? 'Connecting...' : 'Connected'}
                         </div>
                     </div>
@@ -164,7 +160,7 @@ function ChainSelectVisual() {
             </div>
 
             {/* Decorative Background Elements */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
         </div>
     )
 }
@@ -174,7 +170,7 @@ function ClassicModeVisual() {
         <div className="relative w-full h-full flex flex-col items-center justify-center">
             {/* Abstract Chart Line */}
             <svg className="absolute inset-0 w-full h-full opacity-50" viewBox="0 0 800 400" preserveAspectRatio="none">
-                <path d="M0,350 Q100,300 200,320 T400,250 T600,200 T800,100" fill="none" stroke="#8b5cf6" strokeWidth="2" />
+                <path d="M0,350 Q100,300 200,320 T400,250 T600,200 T800,100" fill="none" stroke="#2C7DF7" strokeWidth="2" />
                 <circle cx="800" cy="100" r="4" fill="white" className="animate-pulse" />
             </svg>
 
@@ -259,13 +255,13 @@ function SettlementVisual() {
 
             <div className="flex items-center gap-4">
                 <div className="bg-[#1A1A22] border border-white/10 rounded-2xl p-4 flex items-center gap-4 min-w-[300px]">
-                    <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-2xl">
+                    <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-2xl">
                         💰
                     </div>
                     <div className="flex-1">
                         <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">Total Payout</div>
                         <div className="text-2xl font-mono text-white font-bold flex items-center gap-2">
-                            +1.95 <span className="text-purple-400 text-sm">SOL</span>
+                            +10.00 <span className="text-blue-400 text-sm">XTZ</span>
                         </div>
                     </div>
                     <div className="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded text-[10px] text-green-400 font-bold uppercase tracking-wider">

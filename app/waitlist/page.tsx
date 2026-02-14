@@ -11,12 +11,12 @@ const steps = [
     {
         id: "01",
         title: "Hybrid Custody",
-        desc: "Solana-speed performance with non-custodial security. Binomo connects your wallet to a high-speed house balance for instant execution without gas lag."
+        desc: "Tezos-speed performance with non-custodial security. Tezonomo connects your wallet to a high-speed house balance for instant execution without gas lag."
     },
     {
         id: "02",
         title: "Multi-Asset Feed",
-        desc: "Trade more than just crypto. Predict millisecond movements on Bitcoin, Solana, Gold, and Tech giants like NVDA and TSLA via Pyth Fixed Oracles."
+        desc: "Trade more than just crypto. Predict millisecond movements on Bitcoin, Tezos, Gold, and Tech giants like NVDA and TSLA via Pyth Fixed Oracles."
     },
     {
         id: "03",
@@ -34,7 +34,7 @@ const testimonials = [
     {
         name: "Astra Vance",
         role: "Venture Strategist",
-        content: "The Blitz Rounds are a game-changer. The millisecond precision from Pyth Oracles makes Binomo feel like a professional CEX but with decentralized peace of mind.",
+        content: "The Blitz Rounds are a game-changer. The millisecond precision from Pyth Oracles makes Tezonomo feel like a professional CEX but with decentralized peace of mind.",
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop"
     },
     {
@@ -46,19 +46,19 @@ const testimonials = [
     {
         name: "Kai Zen",
         role: "Algo Developer",
-        content: "Migrating to the Binomo protocol was the best move. Instant house balance settlement solves the on-chain latency issue perfectly for high-frequency binary options.",
+        content: "Migrating to the Tezonomo protocol was the best move. Instant house balance settlement solves the on-chain latency issue perfectly for high-frequency binary options.",
         avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop"
     },
     {
         name: "Julian Vane",
         role: "Quant Trader",
-        content: "Binomo's tiered system provides a clear roadmap for traders. The VIP perks and advanced indicators give us a significant edge in these fast-moving rounds.",
+        content: "Tezonomo's tiered system provides a clear roadmap for traders. The VIP perks and advanced indicators give us a significant edge in these fast-moving rounds.",
         avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop"
     },
     {
         name: "Sarah M.",
         role: "Early Adopter",
-        content: "Switching between Bitcoin and Gold predictions within seconds is what makes Binomo stand out. The multi-asset support is truly elite.",
+        content: "Switching between Bitcoin and Gold predictions within seconds is what makes Tezonomo stand out. The multi-asset support is truly elite.",
         avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&auto=format&fit=crop"
     }
 ];
@@ -66,11 +66,11 @@ const testimonials = [
 const faqs = [
     {
         question: "How does the House Balance work?",
-        answer: "To ensure millisecond execution, Binomo uses a hybrid house balance system. You deposit SOL or BNB into a non-custodial treasury, which is then reflected in your game balance for instant off-chain betting."
+        answer: "To ensure millisecond execution, Tezonomo uses a hybrid house balance system. You deposit XTZ into a non-custodial treasury, which is then reflected in your game balance for instant off-chain betting."
     },
     {
         question: "What assets can I trade?",
-        answer: "Binomo supports a wide range of assets including major cryptos (BTC, ETH, SOL), precious metals (Gold, Silver), and top-tier stocks (AAPL, NVDA, TSLA) through Pyth price feeds."
+        answer: "Tezonomo supports a wide range of assets including major cryptos (BTC, ETH, XTZ), precious metals (Gold, Silver), and top-tier stocks (AAPL, NVDA, TSLA) through Pyth price feeds."
     },
     {
         question: "What are Blitz Rounds?",
@@ -82,7 +82,7 @@ const faqs = [
     },
     {
         question: "Are my funds safe?",
-        answer: "Yes. All deposits are held in a secure treasury wallet verified on-chain. Withdrawals are processed through the Binomo protocol, ensuring you maintain ultimate control over your assets."
+        answer: "Yes. All deposits are held in a secure treasury wallet verified on-chain. Withdrawals are processed through the Tezonomo protocol, ensuring you maintain ultimate control over your assets."
     }
 ];
 
@@ -132,7 +132,7 @@ export default function WaitlistPage() {
     };
 
     return (
-        <main className="landing-layout selection:bg-purple-500/30">
+        <main className="landing-layout selection:bg-blue-500/30">
             {/* Background stays fixed */}
             <div className="fixed inset-0 pointer-events-none">
                 <GridScan
@@ -140,7 +140,7 @@ export default function WaitlistPage() {
                     lineThickness={1}
                     linesColor="#14141a"
                     gridScale={0.1}
-                    scanColor="#FF9FFC"
+                    scanColor="#2C7DF7"
                     scanOpacity={0.03}
                     scanDuration={16.0}
                     enablePost
@@ -151,7 +151,7 @@ export default function WaitlistPage() {
             </div>
 
             <nav className={`sticky-nav ${scrolled ? 'scrolled' : 'at-top'}`}>
-                <div className="text-xl font-black tracking-tighter" style={{ fontFamily: 'var(--font-orbitron)' }}>BINOMO</div>
+                <div className="text-xl font-black tracking-tighter" style={{ fontFamily: 'var(--font-orbitron)' }}>TEZONOMO</div>
                 <div className="flex items-center gap-4">
                     <a href="/" className="px-5 py-2 bg-white/5 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-white hover:bg-white hover:text-black transition-all">Launch App</a>
                 </div>
@@ -176,9 +176,9 @@ export default function WaitlistPage() {
                                     }
                                 }
                             }}
-                            className="flex"
+                            className="flex flex-wrap"
                         >
-                            {Array.from("BINOMO").map((letter, index) => (
+                            {Array.from("TEZONOMO").map((letter, index) => (
                                 <motion.h1
                                     key={index}
                                     variants={{
@@ -194,7 +194,7 @@ export default function WaitlistPage() {
                                             }
                                         }
                                     }}
-                                    className="text-[15vw] lg:text-[12rem] font-black leading-[0.8] tracking-tighter text-white"
+                                    className="text-[15vw] lg:text-[10rem] font-black leading-[0.8] tracking-tighter text-white"
                                     style={{ fontFamily: 'var(--font-orbitron)' }}
                                 >
                                     {letter}
@@ -258,16 +258,16 @@ export default function WaitlistPage() {
 
                 </div>
 
-                {/* Decorative Red Abstract Blur - keeping consistent with the requested style */}
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-600/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen opacity-50 block lg:hidden" />
+                {/* Decorative Blue Abstract Blur */}
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen opacity-50 block lg:hidden" />
             </section>
 
             {/* HOW IT WORKS SECTION - Interactive Demo */}
             <section className="relative py-32 bg-[#02040a] overflow-hidden">
                 <div className="section-content relative z-10 max-w-[1200px] mx-auto px-6">
                     <div className="text-center mb-16">
-                        <div className="text-[#ff4444] font-mono text-xs mb-4 uppercase tracking-[0.3em] opacity-80 flex items-center justify-center gap-2">
-                            <span className="w-2 h-2 bg-[#ff4444] rounded-full animate-pulse" />
+                        <div className="text-blue-400 font-mono text-xs mb-4 uppercase tracking-[0.3em] opacity-80 flex items-center justify-center gap-2">
+                            <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
                             Protocol Interface
                         </div>
                         <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white mb-6" style={{ fontFamily: 'var(--font-orbitron)' }}>
@@ -283,7 +283,7 @@ export default function WaitlistPage() {
                     </div>
 
                     {/* Background glow for the demo */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-[#ff4444]/15 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-blue-500/15 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
                 </div>
             </section>
 
@@ -305,7 +305,7 @@ export default function WaitlistPage() {
                     >
                         {testimonials.map((t, i) => (
                             <div key={i} className={`testimonial-card-premium ${i === activeIdx ? 'active' : ''}`}>
-                                <div className="text-purple-500 text-6xl font-serif mb-8 opacity-20">"</div>
+                                <div className="text-blue-500 text-6xl font-serif mb-8 opacity-20">"</div>
                                 <p className="text-xl italic text-white/60 mb-10 font-medium leading-relaxed">
                                     {t.content}
                                 </p>
@@ -313,11 +313,11 @@ export default function WaitlistPage() {
                                     <img
                                         src={t.avatar}
                                         alt={t.name}
-                                        className="w-12 h-12 rounded-2xl object-cover border border-white/10 shadow-lg shadow-purple-500/20"
+                                        className="w-12 h-12 rounded-2xl object-cover border border-white/10 shadow-lg shadow-blue-500/20"
                                     />
                                     <div>
                                         <div className="font-black text-sm tracking-[0.2em] uppercase">{t.name}</div>
-                                        <div className="text-[10px] font-black uppercase tracking-[0.1em] text-purple-500/60 mt-1">{t.role}</div>
+                                        <div className="text-[10px] font-black uppercase tracking-[0.1em] text-blue-500/60 mt-1">{t.role}</div>
                                     </div>
                                 </div>
                             </div>
@@ -331,7 +331,7 @@ export default function WaitlistPage() {
                 <div className="section-content">
                     <div className="faq-grid">
                         <div className="faq-title-area">
-                            <div className="text-purple-500 font-black uppercase tracking-[0.4em] text-xs mb-8">FAQ</div>
+                            <div className="text-blue-500 font-black uppercase tracking-[0.4em] text-xs mb-8">FAQ</div>
                             <h2 className="text-6xl font-black tracking-tighter mb-8 leading-[0.9]">Frequently<br />asked<br />questions</h2>
                             <p className="text-white/30 text-lg font-medium max-w-sm">
                                 Can't find what you're looking for? Reach out to our community on Discord.
@@ -383,7 +383,7 @@ export default function WaitlistPage() {
 
             {/* FOOTER SECTION */}
             <footer className="py-24 px-10 border-t border-white/5 bg-black relative z-10 w-full overflow-hidden">
-                <div className="huge-footer-logo">BINOMO</div>
+                <div className="huge-footer-logo">TEZONOMO</div>
 
                 <div className="footer-meta">
                     <div className="footer-meta-item">2026 © All rights reserved</div>

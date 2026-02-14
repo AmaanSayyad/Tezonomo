@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body: DepositRequest = await request.json();
-    const { userAddress, amount, txHash, currency = 'BNB' } = body;
+    const { userAddress, amount, txHash, currency = 'XTZ' } = body;
 
     // Validate required fields
     if (!userAddress || amount === undefined || amount === null || !txHash) {
@@ -34,40 +34,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate address (support BNB, Solana, Sui, Stellar and Tezos)
-    let isValid = false;
-
-    // Check if it's a valid EVM address
-    if (ethers.isAddress(userAddress)) {
-      isValid = true;
-    } else if (/^0x[0-9a-fA-F]{64}$/.test(userAddress)) {
-      // Check if it's a valid Sui address
-      isValid = true;
-    } else if (/^(tz1|tz2|tz3|KT1)[a-zA-Z0-9]{33}$/.test(userAddress)) {
-      // Check if it's a valid Tezos address
-      isValid = true;
-    } else {
-      // Check if it's a valid Solana address
-      try {
-        const { PublicKey } = await import('@solana/web3.js');
-        const pk = new PublicKey(userAddress);
-        isValid = pk.toBuffer().length === 32;
-      } catch (e) {
-        // Check if it's a valid Stellar address (starts with G, 56 characters)
-        if (/^G[A-Z2-7]{55}$/.test(userAddress)) {
-          isValid = true;
-        } else if (/^(([a-z\d]+[-_])*[a-z\d]+\.(near|testnet))$/.test(userAddress) || /^[0-9a-fA-F]{64}$/.test(userAddress)) {
-          // Check if it's a valid NEAR address (named account ending in .near/.testnet OR implicit 64-char hex)
-          isValid = true;
-        } else {
-          isValid = false;
-        }
-      }
-    }
-
-    if (!isValid) {
+    // Validate address (Tezos only)
+    const { isValidTezosAddress } = await import('@/lib/tezos/client');
+    if (!isValidTezosAddress(userAddress)) {
       return NextResponse.json(
-        { error: 'Invalid wallet address format (BNB, Solana, Sui, Stellar or Tezos required)' },
+        { error: 'Invalid Tezos wallet address format' },
         { status: 400 }
       );
     }

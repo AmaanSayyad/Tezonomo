@@ -85,7 +85,7 @@ export default function AdminDashboard() {
             localStorage.setItem('admin_authorized', 'true');
             fetchData();
         } else {
-            alert('Yanlış şifre!');
+            alert('Incorrect password!');
         }
     };
 

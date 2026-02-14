@@ -1,7 +1,7 @@
 /**
  * Pyth Network Price Feed Service
  * Fetches real-time crypto price data from Pyth Network
- * Supports: BTC, SUI, SOL
+ * Supports: XTZ, BTC, ETH
  */
 
 import { HermesClient } from '@pythnetwork/hermes-client';
@@ -10,15 +10,11 @@ import { HermesClient } from '@pythnetwork/hermes-client';
 export const PRICE_FEED_IDS = {
   BTC: '0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43',
   ETH: '0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace',
-  SOL: '0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d',
-  SUI: '0x23d7315113f5b1d3ba7a83604c44b94d79f4fd69af77f804fc7f920a6dc65744',
   TRX: '0x67aed5a24fdad045475e7195c98a98aea119c763f272d4523f5bac93a4f33c2b',
   XRP: '0xec5d399846a9209f3fe5881d70aae9268c94339ff9817e8d18ff19fa05eea1c8',
   DOGE: '0xdcef50dd0a4cd2dcc17e45df1676dcb336a11a61c69df7a0299b0150c672d25c',
   ADA: '0x2a01deaec9e51a579277b34b122399984d0bbf57e2458a7e42fecd2829867a0d',
   BCH: '0x3dd2b63686a450ec7290df3a1e0b583c0481f651351edfa7636f39aed55cf8a3',
-  BNB: '0x2f95862b045670cd22bee3114c39763a4a08beeb663b145d283c31d7d1101c4f',
-  XLM: '0xb7a8eba68a997cd0210c2e1e4ee811ad2d174b3611c22d9ebf16f4cb7e9ba850',
   XTZ: '0x0affd4b8ad136a21d79bc82450a325ee12ff55a235abc242666e423b8bcffd03',
   NEAR: '0xc415de8d2eba7db216527dff4b60e8f3a5311c740dadb233e13e12547e226750', // Corrected Pyth ID
   // Metals
@@ -61,7 +57,7 @@ export class PythPriceFeed {
   private isRunning: boolean = false;
   private asset: AssetType;
 
-  constructor(asset: AssetType = 'BTC') {
+  constructor(asset: AssetType = 'XTZ') {
     this.client = new HermesClient(HERMES_ENDPOINT);
     this.asset = asset;
   }
@@ -250,7 +246,7 @@ export const startMultiPythPriceFeed = (
  */
 export const startPythPriceFeed = (
   callback: (price: number, data: PriceData) => void,
-  asset: AssetType = 'BTC'
+  asset: AssetType = 'XTZ'
 ): (() => void) => {
   const feed = new PythPriceFeed(asset);
 
@@ -263,14 +259,9 @@ export const startPythPriceFeed = (
  * Fetch a single price snapshot from Pyth Network
  * Useful for one-time price checks
  */
-export const fetchPrice = async (asset: AssetType = 'BTC'): Promise<PriceData> => {
+export const fetchPrice = async (asset: AssetType = 'XTZ'): Promise<PriceData> => {
   const feed = new PythPriceFeed(asset);
   return await feed.fetchPrice();
-};
-
-// Backward compatibility
-export const fetchBTCPrice = async (): Promise<PriceData> => {
-  return fetchPrice('BTC');
 };
 
 // Export for backward compatibility (mock mode for testing)
@@ -282,7 +273,7 @@ export class MockPriceFeed {
   private asset: AssetType;
 
   constructor(
-    asset: AssetType = 'BTC',
+    asset: AssetType = 'XTZ',
     basePrice?: number,
     volatility: number = 0.001,
     trend: number = 0
@@ -291,7 +282,7 @@ export class MockPriceFeed {
     // Default base prices for different assets
     const defaultPrices = {
       BTC: 50000,
-      BNB: 600
+      XTZ: 1.2
     };
     this.basePrice = basePrice || defaultPrices[asset as keyof typeof defaultPrices] || 1;
     this.volatility = volatility;
@@ -302,7 +293,7 @@ export class MockPriceFeed {
     this.asset = asset;
     const defaultPrices = {
       BTC: 50000,
-      BNB: 600
+      XTZ: 1.2
     };
     this.basePrice = defaultPrices[asset as keyof typeof defaultPrices] || 1;
   }
@@ -357,7 +348,7 @@ export const startMockPriceFeed = (
   }
 ): (() => void) => {
   const feed = new MockPriceFeed(
-    options?.asset || 'BTC',
+    options?.asset || 'XTZ',
     options?.basePrice,
     options?.volatility,
     options?.trend

@@ -16,13 +16,13 @@ export const ActiveRound: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Only show Binomo-style bets that have strikePrice and endTime
-  const binomoBets = activeBets.filter(
+  // Only show Tezonomo-style bets that have strikePrice and endTime
+  const tezonomoBets = activeBets.filter(
     (bet): bet is ActiveBet & { strikePrice: number; endTime: number } =>
       bet.strikePrice != null && bet.endTime != null
   );
 
-  if (binomoBets.length === 0) {
+  if (tezonomoBets.length === 0) {
     return null;
   }
 
@@ -30,7 +30,7 @@ export const ActiveRound: React.FC = () => {
     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
       <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest px-2">Active Trades</h3>
 
-      {binomoBets.map((bet) => {
+      {tezonomoBets.map((bet) => {
         const timeLeft = Math.max(0, Math.floor((bet.endTime - now) / 1000));
         const isUp = bet.direction === 'UP';
         const isWinning = isUp ? currentPrice > bet.strikePrice : currentPrice < bet.strikePrice;
@@ -45,7 +45,7 @@ export const ActiveRound: React.FC = () => {
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${isUp ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
                     {isUp ? 'UP' : 'DOWN'}
                   </span>
-                  <span className="text-white font-mono text-sm font-bold">{bet.amount} BNB</span>
+                  <span className="text-white font-mono text-sm font-bold">{bet.amount} XTZ</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-gray-400 text-[10px] font-mono">EXPIRING IN</span>
@@ -73,7 +73,7 @@ export const ActiveRound: React.FC = () => {
               <div className="flex justify-between items-center pt-1">
                 <span className="text-gray-400 text-[10px] uppercase font-bold tracking-tighter">Potential Payout</span>
                 <span className={`text-sm font-bold font-mono ${isWinning ? 'text-emerald-400' : 'text-gray-500'}`}>
-                  {potentialPayout} BNB
+                  {potentialPayout} XTZ
                 </span>
               </div>
             </div>

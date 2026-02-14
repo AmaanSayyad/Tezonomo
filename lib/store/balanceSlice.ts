@@ -1,9 +1,8 @@
 /**
  * Balance state slice for Zustand store
- * Manages house balance state and operations (deposit, withdraw, bet)
+ * Manages house balance state and operations(deposit, withdraw, bet)
  * 
- * Task: 8.2 Update balance slice for BNB migration
- * Requirements: 3.5
+ * Note: Updated for Tezos / XTZ focus.
  */
 
 import { StateCreator } from "zustand";
@@ -34,7 +33,7 @@ export interface BalanceState {
 export const createBalanceSlice: StateCreator<BalanceState> = (set, get) => ({
   // Initial state
   houseBalance: 0,
-  demoBalance: 10000, // 10,000 demo BNB to start
+  demoBalance: 10000, // 10,000 demo XTZ to start
   accountType: 'real', // Default to real mode, demo activated via logo click
   userTier: 'free',
   isLoading: false,
@@ -47,15 +46,11 @@ export const createBalanceSlice: StateCreator<BalanceState> = (set, get) => ({
    */
   fetchBalance: async (address: string) => {
     const { accountType } = get();
-    // Access network from combined store if available, or default to BNB
-    let network = (get() as any).network || 'BNB';
-
-    if (address && (address.endsWith('.near') || address.endsWith('.testnet') || /^[0-9a-fA-F]{64}$/.test(address))) {
-      network = 'NEAR';
-    }
+    // Access network from combined store if available, or default to XTZ
+    const network = (get() as any).network || 'XTZ';
 
     // Skip API fetch for demo mode as it uses local state only
-    if (!address || accountType === 'demo' || address.startsWith('0xDEMO')) {
+    if (!address || accountType === 'demo' || address.startsWith('tz1DEMO')) {
       return;
     }
 
@@ -88,8 +83,6 @@ export const createBalanceSlice: StateCreator<BalanceState> = (set, get) => ({
 
   /**
    * Set house balance directly
-   * Used by event listeners and after successful operations
-   * @param balance - New balance value
    */
   setBalance: (balance: number) => {
     set({ houseBalance: balance });
@@ -97,9 +90,6 @@ export const createBalanceSlice: StateCreator<BalanceState> = (set, get) => ({
 
   /**
    * Update house balance by adding or subtracting an amount
-   * Used for optimistic updates before API confirmation
-   * @param amount - Amount to add or subtract
-   * @param operation - 'add' to increase balance, 'subtract' to decrease
    */
   updateBalance: (amount: number, operation: 'add' | 'subtract') => {
     const { houseBalance, demoBalance, accountType } = get();
@@ -129,18 +119,9 @@ export const createBalanceSlice: StateCreator<BalanceState> = (set, get) => ({
 
   /**
    * Process deposit funds operation
-   * Called after deposit transaction completes to update database
-   * @param address - User wallet address
-   * @param amount - Deposit amount
-   * @param txHash - Transaction hash for audit trail
    */
   depositFunds: async (address: string, amount: number, txHash: string) => {
-    let network = (get() as any).network || 'BNB';
-
-    // Override network for NEAR addresses if not already set correctly
-    if (address.endsWith('.near') || address.endsWith('.testnet') || /^[0-9a-fA-F]{64}$/.test(address)) {
-      network = 'NEAR';
-    }
+    const network = (get() as any).network || 'XTZ';
 
     try {
       set({ isLoading: true, error: null });
@@ -192,7 +173,7 @@ export const createBalanceSlice: StateCreator<BalanceState> = (set, get) => ({
    * @param amount - Withdrawal amount
    */
   withdrawFunds: async (address: string, amount: number) => {
-    const network = (get() as any).network || 'BNB';
+    const network = (get() as any).network || 'XTZ';
 
     try {
       set({ isLoading: true, error: null });

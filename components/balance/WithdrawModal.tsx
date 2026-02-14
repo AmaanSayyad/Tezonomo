@@ -5,7 +5,6 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { useOverflowStore } from '@/lib/store';
 import { useToast } from '@/lib/hooks/useToast';
-import { usePrivy } from '@privy-io/react-auth';
 
 interface WithdrawModalProps {
   isOpen: boolean;
@@ -24,12 +23,11 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { address, withdrawFunds, houseBalance, network, refreshWalletBalance } = useOverflowStore();
-  const { authenticated } = usePrivy();
+  const { address, withdrawFunds, houseBalance, refreshWalletBalance, isConnected } = useOverflowStore();
   const toast = useToast();
 
-  const currencySymbol = network === 'SUI' ? 'USDC' : network === 'SOL' ? 'SOL' : network === 'XLM' ? 'XLM' : network === 'XTZ' ? 'XTZ' : network === 'NEAR' ? 'NEAR' : 'BNB';
-  const networkName = network === 'SUI' ? 'Sui Network' : network === 'SOL' ? 'Solana' : network === 'XLM' ? 'Stellar' : network === 'XTZ' ? 'Tezos' : network === 'NEAR' ? 'NEAR Protocol' : 'BNB Chain';
+  const currencySymbol = 'XTZ';
+  const networkName = 'Tezos Network';
 
   // Reset state when modal opens/closes
   useEffect(() => {
@@ -83,7 +81,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
       return;
     }
 
-    if (!authenticated || !address) {
+    if (!isConnected || !address) {
       setError('Please connect your wallet');
       return;
     }
@@ -104,7 +102,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
       console.log('Withdrawal successful:', result.txHash);
 
       toast.success(
-        `Successfully withdrew ${withdrawAmount.toFixed(4)} ${currencySymbol}! Balance updated.`
+        `Successfully withdrew ${withdrawAmount.toFixed(4)} XTZ! Balance updated.`
       );
 
       if (onSuccess) onSuccess(withdrawAmount, result.txHash);
@@ -128,16 +126,15 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
       showCloseButton={!isLoading}
     >
       <div className="space-y-4">
-        <div className="bg-gradient-to-br from-[#FF006E]/10 to-purple-500/10 border border-[#FF006E]/30 rounded-lg p-3 relative overflow-hidden">
-          <div className="absolute top-0 right-0 px-2 py-0.5 bg-[#FF006E]/20 text-[#FF006E] text-[8px] font-bold uppercase tracking-tighter rounded-bl-lg">
+        <div className="bg-gradient-to-br from-blue-500/10 to-transparent border border-blue-500/30 rounded-lg p-3 relative overflow-hidden">
+          <div className="absolute top-0 right-0 px-2 py-0.5 bg-blue-500/20 text-blue-400 text-[8px] font-bold uppercase tracking-tighter rounded-bl-lg">
             {networkName}
           </div>
           <p className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 font-mono">
             Available to Withdraw
           </p>
-          <p className="text-[#FF006E] text-xl font-bold font-mono flex items-center gap-2">
-            {network === 'SUI' && <img src="/usd-coin-usdc-logo.png" alt="USDC" className="w-5 h-5" />}
-            {network === 'XTZ' && <img src="/logos/tezos-xtz-logo.png" alt="XTZ" className="w-5 h-5" />}
+          <p className="text-blue-400 text-xl font-bold font-mono flex items-center gap-2">
+            <img src="/logos/tezos-xtz-logo.png" alt="XTZ" className="w-5 h-5" />
             {houseBalance.toFixed(4)} {currencySymbol}
           </p>
         </div>
@@ -155,9 +152,9 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
               className={`
                 w-full px-4 py-3 bg-black/50 border rounded-lg text-lg
                 text-white font-mono
-                focus:outline-none focus:ring-1 focus:ring-[#FF006E]
+                focus:outline-none focus:ring-1 focus:ring-blue-500
                 disabled:opacity-50 disabled:cursor-not-allowed
-                ${error ? 'border-red-500' : 'border-[#FF006E]/30'}
+                ${error ? 'border-red-500' : 'border-blue-500/30'}
               `}
             />
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-mono">
@@ -169,7 +166,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
             <button
               onClick={handleMaxClick}
               disabled={isLoading || houseBalance === 0}
-              className="text-[10px] text-[#FF006E] hover:text-[#FF006E]/80 font-mono disabled:opacity-50 transition-colors uppercase tracking-wider"
+              className="text-[10px] text-blue-400 hover:text-blue-300 font-mono disabled:opacity-50 transition-colors uppercase tracking-wider"
             >
               Withdraw All
             </button>

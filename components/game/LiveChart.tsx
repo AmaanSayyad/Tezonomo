@@ -164,15 +164,11 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
   const assetConfig: Record<AssetType, { name: string; symbol: string; pair: string; decimals: number; logo: string; category: 'Crypto' | 'Metals' | 'Forex' | 'Stocks' }> = {
     BTC: { name: 'Bitcoin', symbol: 'BTC', pair: 'BTC/USD', decimals: 2, logo: '/logos/bitcoin-btc-logo.png', category: 'Crypto' },
     ETH: { name: 'Ethereum', symbol: 'ETH', pair: 'ETH/USD', decimals: 2, logo: '/logos/ethereum-eth-logo.png', category: 'Crypto' },
-    SOL: { name: 'Solana', symbol: 'SOL', pair: 'SOL/USD', decimals: 2, logo: '/logos/solana-sol-logo.png', category: 'Crypto' },
     TRX: { name: 'Tron', symbol: 'TRX', pair: 'TRX/USD', decimals: 4, logo: '/logos/tron-trx-logo.png', category: 'Crypto' },
     XRP: { name: 'Ripple', symbol: 'XRP', pair: 'XRP/USD', decimals: 4, logo: '/logos/xrp-xrp-logo.png', category: 'Crypto' },
     DOGE: { name: 'Dogecoin', symbol: 'DOGE', pair: 'DOGE/USD', decimals: 5, logo: '/logos/dogecoin-doge-logo.png', category: 'Crypto' },
     ADA: { name: 'Cardano', symbol: 'ADA', pair: 'ADA/USD', decimals: 4, logo: '/logos/cardano-ada-logo.png', category: 'Crypto' },
     BCH: { name: 'Bitcoin Cash', symbol: 'BCH', pair: 'BCH/USD', decimals: 2, logo: '/logos/bitcoin-cash-bch-logo.png', category: 'Crypto' },
-    BNB: { name: 'Binance Coin', symbol: 'BNB', pair: 'BNB/USD', decimals: 2, logo: '/logos/bnb-bnb-logo.png', category: 'Crypto' },
-    SUI: { name: 'Sui', symbol: 'SUI', pair: 'SUI/USD', decimals: 3, logo: '/logos/sui-logo.png', category: 'Crypto' },
-    XLM: { name: 'Stellar', symbol: 'XLM', pair: 'XLM/USD', decimals: 5, logo: '/logos/stellar-xlm-logo.png', category: 'Crypto' },
     XTZ: { name: 'Tezos', symbol: 'XTZ', pair: 'XTZ/USD', decimals: 4, logo: '/logos/tezos-xtz-logo.png', category: 'Crypto' },
     NEAR: { name: 'NEAR Protocol', symbol: 'NEAR', pair: 'NEAR/USD', decimals: 4, logo: '/logos/near-logo.svg', category: 'Crypto' },
     // Metals
@@ -197,7 +193,7 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
 
 
 
-  const currentAssetConfig = assetConfig[selectedAsset] || assetConfig.BTC;
+  const currentAssetConfig = assetConfig[selectedAsset as AssetType] || assetConfig.BTC;
 
   // Filtered assets based on search and category
   const filteredAssets = useMemo(() => {
@@ -370,10 +366,10 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
     setSocialBets([]);
   }, [selectedAsset]);
 
-  // Handle classic (binomo) mode bet results at the graph tip
+  // Handle classic (tezonomo) mode bet results at the graph tip
   const lastProcessedResultRef = useRef<number>(0);
   useEffect(() => {
-    if (lastResult && gameMode === 'binomo' && scales && lastResult.timestamp > lastProcessedResultRef.current) {
+    if (lastResult && gameMode === 'tezonomo' && scales && lastResult.timestamp > lastProcessedResultRef.current) {
       lastProcessedResultRef.current = lastResult.timestamp;
 
       const multiplier = lastResult.amount > 0 ? lastResult.payout / lastResult.amount : 0;
@@ -926,9 +922,9 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
         </div>
       )}
 
-      {/* Binomo Mode: Active Bets SVG Overlay - Strike and Expiration lines */}
+      {/* Tezonomo Mode: Active Bets SVG Overlay - Strike and Expiration lines */}
       <svg className="absolute inset-0 w-full h-full z-20 pointer-events-none">
-        {gameMode === 'binomo' && scales && activeBets.map((bet: any) => {
+        {gameMode === 'tezonomo' && scales && activeBets.map((bet: any) => {
           if (bet.status !== 'active') return null;
 
           const strikeY = scales.yScale(bet.strikePrice);
@@ -1252,9 +1248,9 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
               setIsAssetDropdownOpen(!isAssetDropdownOpen);
             }}
             data-tour="asset-selector"
-            className="flex items-center gap-3 px-4 py-2 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl hover:border-purple-500/50 transition-all duration-300 group"
+            className="flex items-center gap-3 px-4 py-2 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl hover:border-blue-500/50 transition-all duration-300 group"
           >
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden ${isAssetDropdownOpen ? 'bg-purple-500 text-white' : 'bg-white/5 text-purple-400'}`}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden ${isAssetDropdownOpen ? 'bg-blue-500 text-white' : 'bg-white/5 text-blue-400'}`}>
               <AssetIcon
                 src={currentAssetConfig.logo}
                 asset={selectedAsset}
@@ -1266,7 +1262,7 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
               <div className="flex items-center gap-2">
                 <span className="text-white text-sm font-black tracking-tight">{selectedAsset}</span>
                 <svg
-                  className={`w-3 h-3 text-gray-500 transition-transform duration-300 ${isAssetDropdownOpen ? 'rotate-180 text-purple-400' : ''}`}
+                  className={`w-3 h-3 text-gray-500 transition-transform duration-300 ${isAssetDropdownOpen ? 'rotate-180 text-blue-400' : ''}`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -1294,7 +1290,7 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
               <motion.div
                 animate={{ opacity: [0.4, 1, 0.4] }}
                 transition={{ duration: 2, repeat: Infinity }}
-                className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]"
+                className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"
               />
               <span className="text-[9px] text-gray-400 font-black tracking-[0.2em] uppercase">
                 Powered by Pyth
@@ -1366,18 +1362,18 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
                   className={`
                     w-full flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300 mb-1 last:mb-0 group
                     ${activeIndicators[indicator.id]
-                      ? 'bg-purple-600/20 border border-purple-500/30'
+                      ? 'bg-blue-600/20 border border-blue-500/30'
                       : 'hover:bg-white/5 border border-transparent'
                     }
                   `}
                 >
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${activeIndicators[indicator.id] ? 'bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]' : 'bg-white/5 text-gray-500 group-hover:text-gray-300'}`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${activeIndicators[indicator.id] ? 'bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'bg-white/5 text-gray-500 group-hover:text-gray-300'}`}>
                     {indicator.icon}
                   </div>
                   <span className={`flex-1 text-left text-[11px] font-black uppercase tracking-wider transition-colors ${activeIndicators[indicator.id] ? 'text-white' : 'text-gray-400 group-hover:text-gray-200'}`}>
                     {indicator.name}
                   </span>
-                  <div className={`w-2 h-2 rounded-full transition-all duration-500 ${activeIndicators[indicator.id] ? 'bg-purple-500 scale-100 shadow-[0_0_8px_rgba(168,85,247,0.8)]' : 'bg-white/10 scale-50'}`} />
+                  <div className={`w-2 h-2 rounded-full transition-all duration-500 ${activeIndicators[indicator.id] ? 'bg-blue-500 scale-100 shadow-[0_0_8px_rgba(59,130,246,0.8)]' : 'bg-white/10 scale-50'}`} />
                 </button>
               ))}
             </motion.div>
@@ -1449,7 +1445,7 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
                         ? `+${result.payout.toFixed(4)}`
                         : `-${result.amount.toFixed(4)}`
                       }
-                      <span className="text-xs ml-1 opacity-70">BNB</span>
+                      <span className="text-xs ml-1 opacity-70">XTZ</span>
                     </p>
                   </div>
 
@@ -1495,7 +1491,7 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
                 placeholder="Search assets..."
                 value={assetSearchQuery}
                 onChange={(e) => setAssetSearchQuery(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/50 transition-all font-medium"
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-all font-medium"
               />
             </div>
 
@@ -1505,7 +1501,7 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
                 <button
                   key={cat}
                   onClick={() => setActiveAssetCategory(cat)}
-                  className={`flex-1 py-1 px-2 rounded-lg text-[10px] font-bold transition-all ${activeAssetCategory === cat ? 'bg-purple-500 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}
+                  className={`flex-1 py-1 px-2 rounded-lg text-[10px] font-bold transition-all ${activeAssetCategory === cat ? 'bg-blue-500 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}
                 >
                   {cat}
                 </button>
@@ -1526,12 +1522,12 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
                     className={`
                       flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-200 group
                       ${selectedAsset === asset
-                        ? 'bg-purple-500/20 border border-purple-500/30'
+                        ? 'bg-blue-500/20 border border-blue-500/30'
                         : 'hover:bg-white/5 border border-transparent'
                       }
                     `}
                   >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden ${selectedAsset === asset ? 'bg-purple-500 text-white' : 'bg-white/5 text-gray-400'}`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden ${selectedAsset === asset ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-400'}`}>
                       <AssetIcon
                         src={assetConfig[asset].logo}
                         asset={asset}
@@ -1548,7 +1544,7 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
                       <p className="text-[10px] text-gray-500 font-bold font-mono">{assetConfig[asset].pair}</p>
                     </div>
                     {selectedAsset === asset && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,1)]" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,1)]" />
                     )}
                   </button>
                 ))

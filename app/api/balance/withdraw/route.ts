@@ -12,7 +12,7 @@ interface WithdrawRequest {
 export async function POST(request: NextRequest) {
   try {
     const body: WithdrawRequest = await request.json();
-    const { userAddress, amount, currency = 'BNB' } = body;
+    const { userAddress, amount, currency = 'XTZ' } = body;
 
     // Validate required fields
     if (!userAddress || amount === undefined || amount === null) {
@@ -22,36 +22,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate address using utility
-    const { isValidAddress } = await import('@/lib/utils/address');
-    if (!(await isValidAddress(userAddress))) {
+    // Validate address using utility (must be Tezos)
+    const { isValidTezosAddress } = await import('@/lib/tezos/client');
+    if (!isValidTezosAddress(userAddress)) {
       return NextResponse.json(
-        { error: 'Invalid wallet address format' },
+        { error: 'Invalid Tezos wallet address format' },
         { status: 400 }
       );
-    }
-
-    // Detect network flags for backend transfer
-    let isBNB = ethers.isAddress(userAddress);
-    let isSOL = false;
-    let isSUI = false;
-    let isXLM = false;
-    let isXTZ = false;
-    let isNEAR = false;
-
-    if (!isBNB) {
-      if (/^0x[0-9a-fA-F]{64}$/.test(userAddress)) {
-        isSUI = true;
-      } else if (/^G[A-Z2-7]{55}$/.test(userAddress)) {
-        isXLM = true;
-      } else if (/^(tz1|tz2|tz3|KT1)[a-zA-Z0-9]{33}$/.test(userAddress)) {
-        isXTZ = true;
-      } else if (/^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/.test(userAddress) || /^[0-9a-fA-F]{64}$/.test(userAddress)) {
-        isNEAR = true;
-      } else {
-        // Must be Solana if isValidAddress passed
-        isSOL = true;
-      }
     }
 
     if (amount <= 0) {
@@ -92,31 +69,13 @@ export async function POST(request: NextRequest) {
 
     console.log(`Withdrawal Request: Total=${amount}, Fee=${feeAmount}, Net=${netWithdrawAmount}, Currency=${currency}`);
 
-    // 3. Perform transfer from treasury based on network
+    // 3. Perform transfer from treasury (Tezos only)
     let signature: string;
     try {
-      if (isBNB) {
-        signature = await transferBNBFromTreasury(userAddress, netWithdrawAmount);
-      } else if (isSOL) {
-        const { transferSOLFromTreasury } = await import('@/lib/solana/backend-client');
-        signature = await transferSOLFromTreasury(userAddress, netWithdrawAmount);
-      } else if (isSUI) {
-        const { transferUSDCFromTreasury } = await import('@/lib/sui/backend-client');
-        signature = await transferUSDCFromTreasury(userAddress, netWithdrawAmount);
-      } else if (isXLM) {
-        const { transferXLMFromTreasury } = await import('@/lib/stellar/backend-client');
-        signature = await transferXLMFromTreasury(userAddress, netWithdrawAmount);
-      } else if (isXTZ) {
-        const { transferXTZFromTreasury } = await import('@/lib/tezos/backend-client');
-        signature = await transferXTZFromTreasury(userAddress, netWithdrawAmount);
-      } else if (isNEAR) {
-        const { transferNEARFromTreasury } = await import('@/lib/near/backend-client');
-        signature = await transferNEARFromTreasury(userAddress, netWithdrawAmount);
-      } else {
-        throw new Error('Unsupported network for withdrawal');
-      }
+      const { transferXTZFromTreasury } = await import('@/lib/tezos/backend-client');
+      signature = await transferXTZFromTreasury(userAddress, netWithdrawAmount);
     } catch (e: any) {
-      console.error('Transfer failed:', e);
+      console.error('Tezos transfer failed:', e);
       return NextResponse.json({ error: `Withdrawal failed: ${e.message}` }, { status: 500 });
     }
 

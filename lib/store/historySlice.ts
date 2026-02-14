@@ -2,7 +2,7 @@
  * History state slice for Zustand store
  * Manages bet history and persistence
  * 
- * Note: After Sui migration, bet history is managed off-chain.
+ * Note: Bet history is managed off-chain.
  * Blockchain events are only for deposit/withdrawal tracking.
  */
 
@@ -60,7 +60,7 @@ export const createHistorySlice: StateCreator<HistoryState> = (set, get) => ({
               endPrice: parseFloat(row.end_price) || 0,
               actualChange: (parseFloat(row.end_price) || 0) - (parseFloat(row.strike_price) || 0),
               target: {
-                id: row.mode === 'binomo' ? 'classic' : 'box',
+                id: row.mode === 'tezonomo' ? 'classic' : 'box',
                 label: `${row.direction} ${row.multiplier}x`,
                 multiplier: parseFloat(row.multiplier) || 1.9,
                 priceChange: 0,
@@ -136,7 +136,7 @@ export const createHistorySlice: StateCreator<HistoryState> = (set, get) => ({
   clearHistory: () => {
     set({ bets: [] });
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('overflow_bet_history');
+      localStorage.removeItem('tezonomo_bet_history');
     }
   },
 

@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
             .from('bet_history')
             .upsert({
                 id,
-                wallet_address: walletAddress.toLowerCase(),
-                asset: asset || 'BNB',
+                wallet_address: walletAddress,
+                asset: asset || 'XTZ',
                 direction: direction || 'UP',
                 amount: parseFloat(amount) || 0,
                 multiplier: parseFloat(multiplier) || 1.9,
@@ -41,8 +41,8 @@ export async function POST(request: NextRequest) {
                 end_price: parseFloat(endPrice) || 0,
                 payout: parseFloat(payout) || 0,
                 won: !!won,
-                mode: mode || 'binomo',
-                network: network || 'BNB',
+                mode: mode || 'tezonomo',
+                network: network || 'XTZ',
                 resolved_at: new Date().toISOString(),
             }, { onConflict: 'id' });
 

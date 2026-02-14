@@ -61,48 +61,48 @@ export const BetCard: React.FC<BetCardProps> = ({ bet, isExpanded, onToggle }) =
         </div>
 
         <div className="text-right">
-          <p className="text-white font-bold">{parseFloat(bet.amount).toFixed(4)} BNB</p>
+          <p className="text-white font-bold font-mono">{parseFloat(bet.amount).toFixed(4)} XTZ</p>
           {isSettled && (
-            <p className={`text-sm font-semibold ${bet.won ? 'text-green-400' : 'text-red-400'}`}>
-              {bet.won ? `+${parseFloat(bet.payout).toFixed(4)}` : `-${parseFloat(bet.amount).toFixed(4)}`} BNB
+            <p className={`text-sm font-bold font-mono ${bet.won ? 'text-green-400' : 'text-red-400'}`}>
+              {bet.won ? `+${parseFloat(bet.payout).toFixed(4)}` : `-${parseFloat(bet.amount).toFixed(4)}`} XTZ
             </p>
           )}
           {isActive && (
-            <p className="text-yellow-400 text-sm">Active</p>
+            <p className="text-yellow-400 text-sm font-bold uppercase tracking-tighter">Active</p>
           )}
         </div>
       </div>
 
       {/* Expanded Details */}
       {isExpanded && (
-        <div className="border-t border-gray-700 p-3 space-y-2">
+        <div className="border-t border-white/5 p-3 space-y-2">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="text-gray-400 text-xs uppercase tracking-wider">Bet ID</p>
-              <p className="text-white text-sm font-mono">#{bet.id}</p>
+              <p className="text-gray-400 text-[10px] uppercase tracking-wider font-mono">Bet ID</p>
+              <p className="text-white text-xs font-mono">#{bet.id.slice(-8)}</p>
             </div>
 
             <div>
-              <p className="text-gray-400 text-xs uppercase tracking-wider">Multiplier</p>
-              <p className="text-white text-sm font-bold">x{bet.target.multiplier}</p>
+              <p className="text-gray-400 text-[10px] uppercase tracking-wider font-mono">Multiplier</p>
+              <p className="text-white text-sm font-bold font-mono">x{bet.target.multiplier}</p>
             </div>
 
             <div>
-              <p className="text-gray-400 text-xs uppercase tracking-wider">Start Price</p>
-              <p className="text-white text-sm">${bet.startPrice.toLocaleString()}</p>
+              <p className="text-gray-400 text-[10px] uppercase tracking-wider font-mono">Start Price</p>
+              <p className="text-white text-sm font-mono">${bet.startPrice.toLocaleString()}</p>
             </div>
 
             {isSettled && (
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-wider">End Price</p>
-                <p className="text-white text-sm">${bet.endPrice.toLocaleString()}</p>
+                <p className="text-gray-400 text-[10px] uppercase tracking-wider font-mono">End Price</p>
+                <p className="text-white text-sm font-mono">${bet.endPrice.toLocaleString()}</p>
               </div>
             )}
 
             {isSettled && (
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-wider">Actual Change</p>
-                <p className={`text-sm font-bold ${bet.actualChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <p className="text-gray-400 text-[10px] uppercase tracking-wider font-mono">Actual Change</p>
+                <p className={`text-sm font-bold font-mono ${bet.actualChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                   {bet.actualChange >= 0 ? '+' : ''}{bet.actualChange.toFixed(2)}
                 </p>
               </div>
@@ -110,8 +110,8 @@ export const BetCard: React.FC<BetCardProps> = ({ bet, isExpanded, onToggle }) =
 
             {isSettled && (
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-wider">Target</p>
-                <p className="text-white text-sm">
+                <p className="text-gray-400 text-[10px] uppercase tracking-wider font-mono">Target</p>
+                <p className="text-white text-sm font-mono">
                   {bet.target.direction === 'UP' ? '+' : ''}{bet.target.priceChange}
                 </p>
               </div>
@@ -120,12 +120,12 @@ export const BetCard: React.FC<BetCardProps> = ({ bet, isExpanded, onToggle }) =
 
           {isSettled && (
             <div className={`
-              mt-3 p-2 rounded text-center font-semibold
+              mt-3 p-2 rounded text-center font-bold text-xs uppercase tracking-wide
               ${bet.won ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}
             `}>
               {bet.won
-                ? `Won ${parseFloat(bet.payout).toFixed(4)} BNB (${((parseFloat(bet.payout) / parseFloat(bet.amount) - 1) * 100).toFixed(0)}% profit)`
-                : `Lost ${parseFloat(bet.amount).toFixed(4)} BNB`
+                ? `Won ${parseFloat(bet.payout).toFixed(4)} XTZ (+${((parseFloat(bet.payout) / parseFloat(bet.amount) - 1) * 100).toFixed(0)}%)`
+                : `Lost ${parseFloat(bet.amount).toFixed(4)} XTZ`
               }
             </div>
           )}

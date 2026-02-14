@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 /**
  * SettlementNotification Component
- * Displays a Binomo-style popup when a bet is settled (win or loss)
+ * Displays a Tezonomo-style popup when a bet is settled (win or loss)
  */
 export const SettlementNotification: React.FC = () => {
     const lastResult = useOverflowStore(state => state.lastResult);
@@ -53,7 +53,7 @@ export const SettlementNotification: React.FC = () => {
 
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-black uppercase tracking-tighter leading-none opacity-60">
-                                    {lastResult.asset || (network === 'SOL' ? 'SOL' : 'BNB')} {lastResult.won ? 'PROFIT' : 'LOSS'}
+                                    {lastResult.asset || (network === 'XTZ' ? 'XTZ' : 'XTZ')} {lastResult.won ? 'PROFIT' : 'LOSS'}
                                 </span>
                                 <span className="text-sm font-mono font-black tracking-tight leading-tight">
                                     {lastResult.won ? '+' : '-'}{Math.abs(lastResult.won ? lastResult.payout : lastResult.amount).toFixed(4)}

@@ -3,7 +3,7 @@
  * Manages wallet connection status and address
  * 
  * Note: This slice is now primarily used for storing wallet state.
- * Actual wallet connection is handled by BNB Wallet integration in lib/bnb/wallet.ts
+ * Actual wallet connection is handled by Tezos Wallet integration in lib/tezos/client.ts
  */
 
 import { StateCreator } from "zustand";
@@ -14,8 +14,8 @@ export interface WalletState {
   walletBalance: number;
   isConnected: boolean;
   isConnecting: boolean;
-  network: 'BNB' | 'SOL' | 'SUI' | 'XLM' | 'XTZ' | 'NEAR' | null;
-  preferredNetwork: 'BNB' | 'SOL' | 'SUI' | 'XLM' | 'XTZ' | 'NEAR' | null;
+  network: 'XTZ' | null;
+  preferredNetwork: 'XTZ' | null;
   error: string | null;
   isConnectModalOpen: boolean;
 
@@ -29,13 +29,13 @@ export interface WalletState {
   // Setters for wallet integration
   setAddress: (address: string | null) => void;
   setIsConnected: (connected: boolean) => void;
-  setNetwork: (network: 'BNB' | 'SOL' | 'SUI' | 'XLM' | 'XTZ' | 'NEAR' | null) => void;
-  setPreferredNetwork: (network: 'BNB' | 'SOL' | 'SUI' | 'XLM' | 'XTZ' | 'NEAR' | null) => void;
+  setNetwork: (network: 'XTZ' | null) => void;
+  setPreferredNetwork: (network: 'XTZ' | null) => void;
 }
 
 /**
  * Create wallet slice for Zustand store
- * Handles wallet state management for multi-chain integration
+ * Handles wallet state management for Tezos integration
  */
 export const createWalletSlice: StateCreator<WalletState> = (set, get) => ({
   // Initial state
@@ -44,13 +44,12 @@ export const createWalletSlice: StateCreator<WalletState> = (set, get) => ({
   isConnected: false,
   isConnecting: false,
   network: null,
-  preferredNetwork: typeof window !== 'undefined' ? localStorage.getItem('solnomo_preferred_network') as 'BNB' | 'SOL' | 'SUI' | 'XLM' | 'XTZ' | 'NEAR' | null : null,
+  preferredNetwork: typeof window !== 'undefined' ? localStorage.getItem('tezonomo_preferred_network') as 'XTZ' | null : null,
   error: null,
   isConnectModalOpen: false,
 
   /**
    * Connect wallet
-   * Note: Actual connection is handled by Privy integration
    */
   connect: async () => {
     set({ isConnectModalOpen: true });
@@ -58,11 +57,8 @@ export const createWalletSlice: StateCreator<WalletState> = (set, get) => ({
 
   /**
    * Disconnect wallet
-   * Note: Actual disconnection is handled by Privy integration
    */
   disconnect: () => {
-    console.log('Disconnect called - handled by Privy');
-
     // Reset state
     set({
       address: null,
@@ -85,29 +81,9 @@ export const createWalletSlice: StateCreator<WalletState> = (set, get) => ({
     }
 
     try {
-      if (network === 'BNB') {
-        const { getBNBBalance } = await import('@/lib/bnb/client');
-        const bal = await getBNBBalance(address);
-        set({ walletBalance: bal });
-      } else if (network === 'SOL') {
-        const { getSOLBalance } = await import('@/lib/solana/client');
-        const bal = await getSOLBalance(address);
-        set({ walletBalance: bal });
-      } else if (network === 'SUI') {
-        const { getUSDCBalance } = await import('@/lib/sui/client');
-        const bal = await getUSDCBalance(address);
-        set({ walletBalance: bal });
-      } else if (network === 'XLM') {
-        const { getXLMBalance } = await import('@/lib/stellar/client');
-        const bal = await getXLMBalance(address);
-        set({ walletBalance: bal });
-      } else if (network === 'XTZ') {
+      if (network === 'XTZ') {
         const { getXTZBalance } = await import('@/lib/tezos/client');
         const bal = await getXTZBalance(address);
-        set({ walletBalance: bal });
-      } else if (network === 'NEAR') {
-        const { getNearBalance } = await import('@/lib/near/wallet');
-        const bal = await getNearBalance(address);
         set({ walletBalance: bal });
       }
     } catch (error) {
@@ -144,22 +120,22 @@ export const createWalletSlice: StateCreator<WalletState> = (set, get) => ({
   },
 
   /**
-   * Set active network (BNB, SOL, SUI, XLM, XTZ or NEAR)
+   * Set active network (XTZ)
    */
-  setNetwork: (network: 'BNB' | 'SOL' | 'SUI' | 'XLM' | 'XTZ' | 'NEAR' | null) => {
+  setNetwork: (network: 'XTZ' | null) => {
     set({ network });
   },
 
   /**
-   * Set preferred network (manually chosen by user)
+   * Set preferred network
    */
-  setPreferredNetwork: (network: 'BNB' | 'SOL' | 'SUI' | 'XLM' | 'XTZ' | 'NEAR' | null) => {
+  setPreferredNetwork: (network: 'XTZ' | null) => {
     set({ preferredNetwork: network });
     if (typeof window !== 'undefined') {
       if (network) {
-        localStorage.setItem('solnomo_preferred_network', network);
+        localStorage.setItem('tezonomo_preferred_network', network);
       } else {
-        localStorage.removeItem('solnomo_preferred_network');
+        localStorage.removeItem('tezonomo_preferred_network');
       }
     }
   }

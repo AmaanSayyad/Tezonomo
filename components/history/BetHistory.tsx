@@ -75,9 +75,9 @@ export const BetHistory: React.FC = () => {
             </div>
 
             <div className="bg-gray-900 rounded p-3">
-              <p className="text-gray-400 text-xs uppercase tracking-wider">Net P/L</p>
-              <p className={`text-lg font-bold ${stats.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {stats.netProfit >= 0 ? '+' : ''}{stats.netProfit.toFixed(4)} BNB
+              <p className="text-gray-400 text-xs uppercase tracking-wider font-mono">Net P/L</p>
+              <p className={`text-lg font-bold font-mono ${stats.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {stats.netProfit >= 0 ? '+' : ''}{stats.netProfit.toFixed(4)} XTZ
               </p>
             </div>
           </div>
@@ -90,14 +90,14 @@ export const BetHistory: React.FC = () => {
               key={filterType}
               onClick={() => setFilter(filterType)}
               className={`
-                px-4 py-2 rounded text-sm font-semibold transition-colors
+                px-4 py-2 rounded text-sm font-bold uppercase tracking-wider transition-all
                 ${filter === filterType
-                  ? 'bg-[#FF006E] text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                  : 'bg-white/5 text-gray-400 hover:bg-white/10'
                 }
               `}
             >
-              {filterType.charAt(0).toUpperCase() + filterType.slice(1)}
+              {filterType}
             </button>
           ))}
         </div>

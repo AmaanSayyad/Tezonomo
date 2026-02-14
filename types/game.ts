@@ -1,9 +1,9 @@
 /**
- * Game-related type definitions for Overflow
+ * Game-related type definitions for Tezonomo
  */
 
 export type Direction = 'UP' | 'DOWN';
-export type GameMode = 'binomo' | 'box';
+export type GameMode = 'tezonomo' | 'box';
 
 export enum TimeframeSeconds {
   Seconds5 = 5,

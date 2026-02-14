@@ -11,7 +11,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase/client';
-import { ethers } from 'ethers';
 
 interface PayoutRequest {
   userAddress: string;
@@ -24,7 +23,7 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body: PayoutRequest = await request.json();
-    const { userAddress, payoutAmount, currency = 'BNB', betId } = body;
+    const { userAddress, payoutAmount, currency = 'XTZ', betId } = body;
 
     // Validate required fields
     if (!userAddress || payoutAmount === undefined || payoutAmount === null || !betId) {

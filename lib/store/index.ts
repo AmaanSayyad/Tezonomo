@@ -1,9 +1,9 @@
 /**
- * Main Zustand store for Binomo dApp
+ * Main Zustand store for Tezonomo Protocol
  * Combines wallet, game, and history slices
  * 
- * Note: After BNB migration, blockchain events are handled
- * by the BNB backend client for deposit/withdrawal confirmation.
+ * Note: After migration, blockchain events are handled
+ * by the Tezos backend client for deposit/withdrawal confirmation.
  * Game logic remains off-chain.
  */
 
@@ -55,12 +55,12 @@ export const initializeStore = async (): Promise<void> => {
     const stopPriceFeed = store.startGlobalPriceFeed(store.updateAllPrices);
 
     // Store cleanup function for later use
-    (window as any).__overflowCleanup = () => {
+    (window as any).__tezonomoCleanup = () => {
       stopPriceFeed();
     };
 
 
-    console.log("Binomo store initialized successfully");
+    console.log("Tezonomo store initialized successfully");
   } catch (error) {
     console.error("Error initializing store:", error);
   }
@@ -72,9 +72,9 @@ export const initializeStore = async (): Promise<void> => {
  * Should be called when app is unmounted
  */
 export const cleanupStore = (): void => {
-  if ((window as any).__overflowCleanup) {
-    (window as any).__overflowCleanup();
-    delete (window as any).__overflowCleanup;
+  if ((window as any).__tezonomoCleanup) {
+    (window as any).__tezonomoCleanup();
+    delete (window as any).__tezonomoCleanup;
   }
 };
 

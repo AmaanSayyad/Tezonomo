@@ -2,7 +2,7 @@
  * Game state slice for Zustand store
  * Manages game state, active rounds, price data, and betting actions
  * 
- * Note: After BNB migration, game logic remains off-chain.
+ * Note: After migration, game logic remains off-chain.
  * Only deposit/withdrawal operations interact with the blockchain.
  */
 
@@ -12,7 +12,7 @@ import { AssetType } from "@/lib/utils/priceFeed";
 import { playWinSound, playLoseSound } from "@/lib/utils/sounds";
 
 // Game Modes
-export type GameMode = 'binomo' | 'box';
+export type GameMode = 'tezonomo' | 'box';
 
 // Active bet (Supports both modes)
 export interface ActiveBet {
@@ -24,7 +24,7 @@ export interface ActiveBet {
   direction: 'UP' | 'DOWN';
   timestamp: number;
   status: 'active' | 'settled';
-  // Binomo mode specific
+  // Tezonomo mode specific
   strikePrice?: number;
   endTime?: number;
   // Box mode specific
@@ -119,8 +119,8 @@ const DEFAULT_TARGET_CELLS: TargetCell[] = [
  */
 export const createGameSlice: StateCreator<any> = (set, get) => ({
   // Initial state
-  gameMode: 'binomo', // Default to binomo mode
-  selectedAsset: 'BNB',
+  gameMode: 'tezonomo', // Internal key is tezonomo, display name is 'Classic' or 'Tezonomo'
+  selectedAsset: 'XTZ',
   currentPrice: 0,
   priceHistory: [],
   assetPrices: {},
@@ -135,7 +135,7 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
   isSettling: false,
   lastResult: null,
   error: null,
-  timeframeSeconds: 30, // Default for binomo
+  timeframeSeconds: 30, // Default for tezonomo
   activeTab: 'bet',
   activeIndicators: {},
   isIndicatorsOpen: false,
@@ -145,13 +145,13 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
   blitzEndTime: null,
   nextBlitzTime: (() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('binomo_blitz_next');
+      const stored = localStorage.getItem('tezonomo_blitz_next');
       if (stored) {
         const t = parseInt(stored, 10);
         if (t > Date.now()) return t;
       }
       const next = Date.now() + 2 * 60 * 1000;
-      localStorage.setItem('binomo_blitz_next', next.toString());
+      localStorage.setItem('tezonomo_blitz_next', next.toString());
       return next;
     }
     return Date.now() + 2 * 60 * 1000;
@@ -160,7 +160,7 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
   blitzMultiplier: 2.0,
 
   /**
-   * Set game mode (binomo or box)
+   * Set game mode (tezonomo or box)
    */
   setGameMode: (mode: GameMode) => {
     set({
@@ -215,7 +215,7 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
     set((state: GameState) => ({
       timeframeSeconds: seconds,
       /**
-       * In 'binomo' (classic) mode or when there are no box bets, we update timeframeSeconds.
+       * In 'tezonomo' (classic) mode or when there are no box bets, we update timeframeSeconds.
        * Classic bets are independent of the current selector (they have strikePrice/endTime),
        * so we keep them active.
        */
@@ -251,13 +251,13 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
    * @param targetId - ID of the target cell (1-8) OR dynamic grid target (e.g., "UP-2.50")
    */
   placeBet: async (amount: string, targetId: string) => {
-    throw new Error("placeBet is deprecated after BNB migration. Use placeBetFromHouseBalance instead.");
+    throw new Error("placeBet is deprecated. Use placeBetFromHouseBalance instead.");
   },
 
   /**
    * Place a bet using house balance (no wallet signature required)
    * Instant-resolution system: bet is placed on a specific cell, resolves when chart hits it
-   * @param amount - Bet amount in BNB tokens
+   * @param amount - Bet amount in XTZ tokens
    * @param targetId - Dynamic grid target (e.g., "UP-2.50") containing direction and multiplier
    * @param userAddress - User's wallet address
    * @param cellId - Optional: The specific cell ID this bet is placed on
@@ -328,7 +328,7 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
           direction: direction,
           timestamp: Date.now(),
           status: 'active',
-          ...(gameMode === 'binomo' ? {
+          ...(gameMode === 'tezonomo' ? {
             strikePrice: currentPrice,
             endTime: Date.now() + (durationSeconds * 1000)
           } : {
@@ -354,8 +354,8 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
 
       set({ isPlacingBet: true, error: null });
 
-      // Get current network from store (e.g., BNB, SOL, SUI, XLM, XTZ)
-      const network = (get() as any).network || 'BNB';
+      // Get current network from store (e.g., XTZ)
+      const network = (get() as any).network || 'XTZ';
 
       // Call API endpoint to place bet from house balance
       const response = await fetch('/api/balance/bet', {
@@ -397,7 +397,7 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
         direction: direction,
         timestamp: Date.now(),
         status: 'active',
-        ...(gameMode === 'binomo' ? {
+        ...(gameMode === 'tezonomo' ? {
           strikePrice: currentPrice,
           endTime: Date.now() + (durationSeconds * 1000)
         } : {
@@ -437,7 +437,7 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
    * @param betId - The unique bet ID to settle
    */
   settleRound: async (betId: string) => {
-    console.log('settleRound called but is deprecated after BNB migration');
+    console.log('settleRound called but is deprecated');
     set({ isSettling: false });
   },
 
@@ -528,11 +528,11 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
     if (!activeBets) return;
 
     activeBets.forEach((bet: ActiveBet) => {
-      // Resolve bet if: mode is binomo, asset matches, status is active, and time has passed
-      const betAsset = bet.asset || 'BNB'; // Fallback
+      // Resolve bet if: mode is tezonomo, asset matches, status is active, and time has passed
+      const betAsset = bet.asset || 'XTZ'; // Fallback
 
       if (
-        bet.mode === 'binomo' &&
+        bet.mode === 'tezonomo' &&
         betAsset === currentSelectedAsset &&
         bet.endTime &&
         bet.strikePrice !== undefined &&
@@ -567,7 +567,7 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
 
         // Update real balance if necessary
         if (accountType === 'real' && address && won) {
-          const network = (get() as any).network || 'BNB';
+          const network = (get() as any).network || 'XTZ';
           fetch('/api/balance/win', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -649,7 +649,7 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
           actualChange: currentPrice - (resolvedBet.strikePrice || 0),
           target: {
             id: resolvedBet.cellId || 'classic',
-            label: resolvedBet.mode === 'binomo' ? `${resolvedBet.direction} ${resolvedBet.multiplier}x` : `Box ${resolvedBet.multiplier}x`,
+            label: resolvedBet.mode === 'tezonomo' ? `${resolvedBet.direction} ${resolvedBet.multiplier}x` : `Box ${resolvedBet.multiplier}x`,
             multiplier: resolvedBet.multiplier,
             priceChange: 0,
             direction: resolvedBet.direction
@@ -665,16 +665,16 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
           body: JSON.stringify({
             id: resolvedBet.id,
             walletAddress: address,
-            asset: resolvedBet.asset || 'BNB',
+            asset: resolvedBet.asset || 'XTZ',
             direction: resolvedBet.direction,
             amount: resolvedBet.amount,
             multiplier: resolvedBet.multiplier,
             strikePrice: resolvedBet.strikePrice || 0,
-            endPrice: currentPrice,
+            end_price: currentPrice,
             payout: payout,
             won: won,
             mode: resolvedBet.mode,
-            network: network || 'BNB',
+            network: network || 'XTZ',
           })
         }).catch(err => console.error('Failed to save bet to Supabase:', err));
       }
@@ -717,7 +717,7 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
       if (blitzEndTime && now >= blitzEndTime) {
         const newNextTime = now + BLITZ_INTERVAL;
         if (typeof window !== 'undefined') {
-          localStorage.setItem('binomo_blitz_next', newNextTime.toString());
+          localStorage.setItem('tezonomo_blitz_next', newNextTime.toString());
         }
         set({
           isBlitzActive: false,
@@ -730,7 +730,7 @@ export const createGameSlice: StateCreator<any> = (set, get) => ({
       if (now >= nextBlitzTime) {
         const newNextTime = now + BLITZ_INTERVAL + BLITZ_DURATION;
         if (typeof window !== 'undefined') {
-          localStorage.setItem('binomo_blitz_next', newNextTime.toString());
+          localStorage.setItem('tezonomo_blitz_next', newNextTime.toString());
         }
         set({
           isBlitzActive: true,

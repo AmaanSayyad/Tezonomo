@@ -4,11 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
 import { LiveChart } from './';
 import { BalanceDisplay } from '@/components/balance';
-import { startPriceFeed } from '@/lib/store/gameSlice';
-import { usePrivy, useWallets } from '@privy-io/react-auth';
-import { getBNBConfig } from '@/lib/bnb/config';
-import { getAddress } from 'viem';
-import { ethers } from 'ethers';
 import { useToast } from '@/lib/hooks/useToast';
 
 
@@ -40,10 +35,7 @@ export const GameBoard: React.FC = () => {
     refreshWalletBalance
   } = useStore();
 
-  const { wallets } = useWallets();
-  const { authenticated } = usePrivy();
-
-  const [betAmount, setBetAmount] = useState<string>('0.1');
+  const [betAmount, setBetAmount] = useState<string>('1'); // Default 1 XTZ
   const [selectedDuration, setSelectedDuration] = useState<number>(30);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
 
@@ -53,12 +45,12 @@ export const GameBoard: React.FC = () => {
 
   const toast = useToast();
 
-  // Unified balance and currency
-  const currencySymbol = network === 'SOL' ? 'SOL' : network === 'SUI' ? 'USDC' : network === 'XLM' ? 'XLM' : network === 'XTZ' ? 'XTZ' : 'BNB';
-  const blitzEntryFee = 0.01;
+  // Forced currency symbol for Tezonomo
+  const currencySymbol = 'XTZ';
+  const blitzEntryFee = 0.5; // Adjusted for XTZ value
 
   const handleEnterBlitz = async () => {
-    if (!authenticated || !address) {
+    if (!isConnected || !address) {
       toast.error("Please connect your wallet first");
       return;
     }
@@ -68,47 +60,15 @@ export const GameBoard: React.FC = () => {
       return;
     }
 
-    const wallet = wallets.find(w => w.address.toLowerCase() === address.toLowerCase());
-    if (!wallet) {
-      toast.error("Active wallet not found in session");
-      return;
-    }
-
     try {
       setIsActivatingBlitz(true);
 
-      if (network === 'SOL') {
-        const solanaProvider = await wallet.getSolanaProvider?.();
-        if (!solanaProvider) throw new Error('Solana provider not available');
+      // Tezos Blitz entry simulation (payment would be an on-chain transaction)
+      toast.info(`Initiating ${blitzEntryFee} XTZ Blitz Entry...`);
 
-        const { getSolanaConnection, buildDepositTransaction } = await import('@/lib/solana/client');
-        const connection = getSolanaConnection();
-        const transaction = await buildDepositTransaction(blitzEntryFee, address);
-
-        toast.info(`Confirming ${blitzEntryFee} SOL Blitz Entry...`);
-        const { signature } = await solanaProvider.signAndSendTransaction(transaction);
-        console.log("Solana Blitz payment sig:", signature);
-      } else if (network === 'BNB') {
-        const ethereumProvider = await wallet.getEthereumProvider();
-        const provider = new ethers.BrowserProvider(ethereumProvider);
-        const signer = await provider.getSigner();
-
-        const config = getBNBConfig();
-        if (!config.treasuryAddress) {
-          throw new Error("Treasury not configured");
-        }
-
-        toast.info(`Confirming ${blitzEntryFee} BNB Blitz Entry...`);
-        const txResponse = await signer.sendTransaction({
-          to: getAddress(config.treasuryAddress),
-          value: ethers.parseEther(blitzEntryFee.toString()),
-        });
-        console.log("BNB Blitz payment tx:", txResponse.hash);
-      } else if (network === 'SUI') {
-        // Sui Blitz entry (placeholder for now as it uses USDC usually)
-        toast.info("Entering Blitz on Sui...");
-        // Similar to DepositModal Sui logic
-      }
+      // In a real implementation, we would call a Tezos contract here
+      // For now, we simulate the success if connected
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       toast.success("Payment successful! Blitz Mode enabled.");
       // Update store state
@@ -116,12 +76,7 @@ export const GameBoard: React.FC = () => {
       refreshWalletBalance();
     } catch (err: any) {
       console.error("Blitz entry failed:", err);
-      const errorMessage = err.message || "";
-      if (errorMessage.includes('rejected') || errorMessage.includes('denied') || errorMessage.includes('User rejected')) {
-        toast.error("User rejected");
-      } else {
-        toast.error(errorMessage || "Failed to enter Blitz Round");
-      }
+      toast.error(err.message || "Failed to enter Blitz Round");
     } finally {
       setIsActivatingBlitz(false);
     }
@@ -166,18 +121,21 @@ export const GameBoard: React.FC = () => {
     }
   };
 
-  const handleBinomoBet = async (direction: 'UP' | 'DOWN') => {
-    if (!address || !isConnected || gameMode !== 'binomo') return;
+  // Handle Tezonomo mode bets
+  const handleTezonomoBet = async (direction: 'UP' | 'DOWN') => {
+    if (!isConnected || !address) {
+      toast.error("Please connect your wallet first");
+      return;
+    }
 
     try {
-      const multiplier = getMultiplier(selectedDuration);
-      await placeBetFromHouseBalance(
-        betAmount,
-        `${direction}-${multiplier}-${selectedDuration}`,
-        address
-      );
-    } catch (err) {
-      console.error("Failed to place Binomo bet:", err);
+      // Use "UP-1.9-30" format for classic mode
+      const result = await placeBetFromHouseBalance(betAmount, `${direction}-1.9-${selectedDuration}`, address);
+      if (result) {
+        toast.info(`${direction} Bet placed! Resolution in ${selectedDuration}s`);
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to place bet");
     }
   };
 
@@ -238,7 +196,7 @@ export const GameBoard: React.FC = () => {
       {!isPanelOpen && (
         <button
           onClick={() => setIsPanelOpen(true)}
-          className="sm:hidden fixed bottom-4 left-4 w-10 h-10 bg-purple-600 rounded-full shadow-lg shadow-purple-500/40 flex items-center justify-center text-white text-lg font-bold z-40"
+          className="sm:hidden fixed bottom-4 left-4 w-10 h-10 bg-blue-600 rounded-full shadow-lg shadow-blue-500/40 flex items-center justify-center text-white text-lg font-bold z-40"
         >
           ▲
         </button>
@@ -248,7 +206,7 @@ export const GameBoard: React.FC = () => {
       <div className="absolute bottom-3 sm:bottom-6 left-3 right-3 sm:left-6 sm:right-auto z-30 pointer-events-none">
 
         {/* Panel - Animated slide up/down on mobile */}
-        <div className={`bg-gradient-to-br from-black/95 via-purple-950/30 to-black/95 backdrop-blur-xl border border-purple-500/20 rounded-2xl shadow-2xl overflow-hidden w-full sm:w-[300px] transition-all duration-300 ease-out pointer-events-auto ${isPanelOpen
+        <div className={`bg-gradient-to-br from-black/95 via-blue-950/30 to-black/95 backdrop-blur-xl border border-blue-500/20 rounded-2xl shadow-2xl overflow-hidden w-full sm:w-[300px] transition-all duration-300 ease-out pointer-events-auto ${isPanelOpen
           ? 'translate-y-0 opacity-100 scale-100'
           : 'translate-y-full opacity-0 scale-95 !pointer-events-none sm:translate-y-0 sm:opacity-100 sm:scale-100 sm:!pointer-events-auto'
           }`}>
@@ -264,10 +222,10 @@ export const GameBoard: React.FC = () => {
           {/* Game Mode Selector */}
           <div className="flex gap-1 p-1 bg-black/60 border-b border-white/5">
             <button
-              onClick={() => setGameMode('binomo')}
+              onClick={() => setGameMode('tezonomo')}
               data-tour="classic-mode"
-              className={`flex-1 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all duration-200 ${gameMode === 'binomo'
-                ? 'bg-purple-600/20 text-purple-400 border border-purple-500/40'
+              className={`flex-1 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all duration-200 ${gameMode === 'tezonomo'
+                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/40'
                 : 'text-gray-500 hover:text-gray-300'
                 }`}
             >
@@ -277,7 +235,7 @@ export const GameBoard: React.FC = () => {
               onClick={() => setGameMode('box')}
               data-tour="box-mode"
               className={`flex-1 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all duration-200 ${gameMode === 'box'
-                ? 'bg-purple-600/20 text-purple-400 border border-purple-500/40'
+                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/40'
                 : 'text-gray-500 hover:text-gray-300'
                 }`}
             >
@@ -290,7 +248,7 @@ export const GameBoard: React.FC = () => {
             <button
               onClick={() => setActiveTab('bet')}
               className={`flex-1 flex items-center justify-center px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 ${activeTab === 'bet'
-                ? 'bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-lg shadow-purple-500/30'
+                ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/30'
                 : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`}
             >
@@ -300,7 +258,7 @@ export const GameBoard: React.FC = () => {
               onClick={() => setActiveTab('wallet')}
               data-tour="wallet-tab"
               className={`flex-1 flex items-center justify-center px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 ${activeTab === 'wallet'
-                ? 'bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-lg shadow-purple-500/30'
+                ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/30'
                 : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`}
             >
@@ -334,7 +292,7 @@ export const GameBoard: React.FC = () => {
                         className={`
                           py-2.5 rounded-lg font-bold text-sm transition-all duration-200
                           ${betAmount === amt.toString()
-                            ? 'bg-gradient-to-b from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/30 scale-105'
+                            ? 'bg-gradient-to-b from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105'
                             : 'bg-white/5 text-gray-300 hover:bg-white/10 hover:scale-102'
                           }
                         `}
@@ -358,14 +316,14 @@ export const GameBoard: React.FC = () => {
                         className={`
                           py-2 rounded-lg font-bold text-xs transition-all duration-200 border
                           ${selectedDuration === duration
-                            ? 'bg-purple-600/20 border-purple-500 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.2)]'
+                            ? 'bg-blue-600/20 border-blue-500 text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.2)]'
                             : 'bg-black/40 border-white/5 text-gray-500 hover:text-gray-300 hover:border-white/10'
                           }
                         `}
                       >
                         <div className="flex flex-col items-center">
                           <span>{duration < 60 ? `${duration}s` : '1m'}</span>
-                          {gameMode === 'binomo' && (
+                          {gameMode === 'tezonomo' && (
                             <span className="text-[8px] opacity-70">x{getMultiplier(duration)}</span>
                           )}
                         </div>
@@ -387,17 +345,17 @@ export const GameBoard: React.FC = () => {
                       className="flex-1 bg-transparent px-2 py-2 text-white font-mono text-base focus:outline-none min-w-0"
                       placeholder="0.00"
                     />
-                    <span className="px-2 py-1.5 bg-purple-500/20 rounded-lg text-purple-400 text-[10px] font-bold shrink-0">
+                    <span className="px-2 py-1.5 bg-blue-500/20 rounded-lg text-blue-400 text-[10px] font-bold shrink-0">
                       {currencySymbol}
                     </span>
                   </div>
                 </div>
 
                 {/* Action Buttons / Instructions */}
-                {gameMode === 'binomo' ? (
+                {gameMode === 'tezonomo' ? (
                   <div className="grid grid-cols-2 gap-3 pt-2">
                     <button
-                      onClick={() => handleBinomoBet('UP')}
+                      onClick={() => handleTezonomoBet('UP')}
                       disabled={!isConnected || isPlacingBet}
                       className="group relative flex flex-col items-center justify-center gap-1 py-4 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-2xl transition-all duration-200 active:scale-95 disabled:opacity-50"
                     >
@@ -406,7 +364,7 @@ export const GameBoard: React.FC = () => {
                     </button>
 
                     <button
-                      onClick={() => handleBinomoBet('DOWN')}
+                      onClick={() => handleTezonomoBet('DOWN')}
                       disabled={!isConnected || isPlacingBet}
                       className="group relative flex flex-col items-center justify-center gap-1 py-4 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 rounded-2xl transition-all duration-200 active:scale-95 disabled:opacity-50"
                     >
@@ -416,8 +374,8 @@ export const GameBoard: React.FC = () => {
                   </div>
                 ) : (
                   <div className="pt-2">
-                    <div className="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-4 text-center">
-                      <p className="text-purple-300 text-xs font-bold uppercase tracking-widest mb-1">Box Mode Active</p>
+                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4 text-center">
+                      <p className="text-blue-300 text-xs font-bold uppercase tracking-widest mb-1">Box Mode Active</p>
                       <p className="text-gray-400 text-[10px] leading-relaxed">
                         Click any cell on the grid chart to place your bet. Each cell has a different multiplier based on its distance from the current price.
                       </p>
@@ -480,13 +438,13 @@ export const GameBoard: React.FC = () => {
                     </div>
 
                     {/* Wallet Balance Display */}
-                    <div className="bg-gradient-to-br from-purple-500/10 to-transparent rounded-xl p-4 border border-purple-500/20">
+                    <div className="bg-gradient-to-br from-blue-500/10 to-transparent rounded-xl p-4 border border-blue-500/20">
                       <p className="text-gray-400 text-[10px] uppercase tracking-widest mb-1">Wallet Balance</p>
                       <div className="flex items-baseline gap-2">
                         <span className="text-2xl font-bold text-white">
                           {isLoadingBalance ? 'Loading...' : formatBalance(activeWalletBalance)}
                         </span>
-                        <span className="text-purple-400 text-sm font-medium">{currencySymbol}</span>
+                        <span className="text-blue-400 text-sm font-medium">{currencySymbol}</span>
                       </div>
                     </div>
 

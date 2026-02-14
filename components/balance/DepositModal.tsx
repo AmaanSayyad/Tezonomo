@@ -1,20 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { usePrivy, useWallets } from '@privy-io/react-auth';
-import { ethers } from 'ethers';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { useOverflowStore } from '@/lib/store';
 import { useToast } from '@/lib/hooks/useToast';
-import { getBNBConfig } from '@/lib/bnb/config';
-import { getAddress } from 'viem';
-import { Connection, PublicKey } from '@solana/web3.js';
-import { getSuiConfig } from '@/lib/sui/config';
-import { buildDepositTransaction as buildSuiDepositTransaction } from '@/lib/sui/client';
-
-import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react';
-import { useSignAndExecuteTransaction, useCurrentAccount } from '@mysten/dapp-kit';
 
 interface DepositModalProps {
   isOpen: boolean;
@@ -33,24 +23,14 @@ export const DepositModal: React.FC<DepositModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { wallets: privyWallets } = useWallets();
-  const { authenticated, user } = usePrivy();
-
-  // Solana Hook
-  const { sendTransaction: signAndSendSolana, publicKey: solanaPublicKey } = useSolanaWallet();
-
-  // Sui Hooks
-  const { mutateAsync: signAndExecuteSui } = useSignAndExecuteTransaction();
-  const suiAccount = useCurrentAccount();
-
-  const { depositFunds, network, walletBalance, refreshWalletBalance, address } = useOverflowStore();
+  const { depositFunds, walletBalance, refreshWalletBalance, address } = useOverflowStore();
   const toast = useToast();
 
-  const currencySymbol = network === 'SUI' ? 'USDC' : network === 'SOL' ? 'SOL' : network === 'XLM' ? 'XLM' : network === 'XTZ' ? 'XTZ' : network === 'NEAR' ? 'NEAR' : 'BNB';
-  const networkName = network === 'SUI' ? 'Sui Network' : network === 'SOL' ? 'Solana' : network === 'XLM' ? 'Stellar' : network === 'XTZ' ? 'Tezos' : network === 'NEAR' ? 'NEAR Protocol' : 'BNB Chain';
+  const currencySymbol = 'XTZ';
+  const networkName = 'Tezos Network';
 
   // Quick select amounts
-  const quickAmounts = network === 'SUI' ? [1, 5, 10, 25] : [0.1, 0.5, 1, 5];
+  const quickAmounts = [1, 5, 10, 25];
 
   // Reset state when modal opens/closes
   useEffect(() => {
@@ -76,7 +56,7 @@ export const DepositModal: React.FC<DepositModalProps> = ({
     }
 
     if (numValue > walletBalance) {
-      return `Insufficient ${currencySymbol} balance`;
+      return `Insufficient XTZ balance`;
     }
 
     return null;
@@ -97,8 +77,8 @@ export const DepositModal: React.FC<DepositModalProps> = ({
 
   const handleMaxClick = () => {
     if (walletBalance > 0) {
-      // Leave a small amount for gas (except for Sui USDC)
-      const gasBuffer = network === 'SUI' ? 0 : network === 'SOL' ? 0.001 : 0.005;
+      // Leave a small amount for gas
+      const gasBuffer = 0.05;
       const maxAmount = Math.max(0, walletBalance - gasBuffer);
       setAmount(maxAmount.toFixed(4));
       setError(null);
@@ -122,63 +102,26 @@ export const DepositModal: React.FC<DepositModalProps> = ({
       setError(null);
 
       const depositAmount = parseFloat(amount);
-      let txHash: string;
 
-      if (network === 'SUI') {
-        if (!suiAccount) throw new Error('Sui wallet not connected');
-        toast.info('Please confirm the transaction in your Sui wallet...');
+      // Tezos Deposit Flow
+      toast.info('Please confirm the transaction in your Tezos wallet...');
 
-        const tx = await buildSuiDepositTransaction(depositAmount, address);
-        const result = await signAndExecuteSui({ transaction: tx as any });
-        txHash = result.digest;
-
-      } else if (network === 'SOL') {
-        if (!solanaPublicKey) throw new Error('Solana wallet not connected');
-
-        const { buildDepositTransaction } = await import('@/lib/solana/client');
-        const transaction = await buildDepositTransaction(depositAmount, address);
-
-        toast.info('Please confirm the transaction in your Solana wallet...');
-
-        txHash = await signAndSendSolana(transaction);
-      } else if (network === 'NEAR') {
-        const { depositNEAR } = await import('@/lib/near/wallet');
-        toast.info('Please confirm the transaction in your NEAR wallet...');
-        txHash = await depositNEAR(amount);
-      } else {
-        // BNB (EVM via Privy)
-        if (!authenticated) throw new Error('Not authenticated with Privy');
-        const wallet = privyWallets.find(w => w.address.toLowerCase() === address.toLowerCase());
-        if (!wallet) throw new Error('Privy wallet not found');
-
-        const ethereumProvider = await wallet.getEthereumProvider();
-        const provider = new ethers.BrowserProvider(ethereumProvider);
-        const signer = await provider.getSigner();
-
-        const bnbConfig = getBNBConfig();
-        if (!bnbConfig.treasuryAddress) throw new Error('Treasury address not configured');
-
-        toast.info('Please confirm the transaction in your wallet...');
-        const txResponse = await signer.sendTransaction({
-          to: getAddress(bnbConfig.treasuryAddress),
-          value: ethers.parseEther(depositAmount.toString()),
-        });
-        txHash = txResponse.hash;
-      }
+      const { depositXTZ } = await import('@/lib/tezos/client');
+      const txHash = await depositXTZ(depositAmount);
 
       toast.info('Transaction submitted. Waiting for confirmation...');
 
       // Update balance in database
-      await depositFunds(address, depositAmount, txHash!);
+      await depositFunds(address, depositAmount, txHash);
 
       // Refresh balances
       refreshWalletBalance();
 
       toast.success(
-        `Successfully deposited ${depositAmount.toFixed(4)} ${currencySymbol}! Balance updated.`
+        `Successfully deposited ${depositAmount.toFixed(4)} XTZ! Balance updated.`
       );
 
-      if (onSuccess) onSuccess(depositAmount, txHash!);
+      if (onSuccess) onSuccess(depositAmount, txHash);
       onClose();
     } catch (err: any) {
       console.error('Deposit error:', err);
@@ -199,16 +142,15 @@ export const DepositModal: React.FC<DepositModalProps> = ({
       showCloseButton={!isLoading}
     >
       <div className="space-y-4">
-        <div className="bg-gradient-to-br from-[#00f5ff]/10 to-purple-500/10 border border-[#00f5ff]/30 rounded-lg p-3 relative overflow-hidden">
-          <div className="absolute top-0 right-0 px-2 py-0.5 bg-[#00f5ff]/20 text-[#00f5ff] text-[8px] font-bold uppercase tracking-tighter rounded-bl-lg">
+        <div className="bg-gradient-to-br from-blue-500/10 to-transparent border border-blue-500/30 rounded-lg p-3 relative overflow-hidden">
+          <div className="absolute top-0 right-0 px-2 py-0.5 bg-blue-500/20 text-blue-400 text-[8px] font-bold uppercase tracking-tighter rounded-bl-lg">
             {networkName}
           </div>
           <p className="text-gray-400 text-[10px] uppercase tracking-wider mb-1 font-mono">
             Wallet Balance
           </p>
-          <p className="text-[#00f5ff] text-xl font-bold font-mono flex items-center gap-2">
-            {network === 'SUI' && <img src="/usd-coin-usdc-logo.png" alt="USDC" className="w-5 h-5" />}
-            {network === 'XTZ' && <img src="/logos/tezos-xtz-logo.png" alt="XTZ" className="w-5 h-5" />}
+          <p className="text-blue-400 text-xl font-bold font-mono flex items-center gap-2">
+            <img src="/logos/tezos-xtz-logo.png" alt="XTZ" className="w-5 h-5" />
             {walletBalance.toFixed(4)} {currencySymbol}
           </p>
         </div>
@@ -226,9 +168,9 @@ export const DepositModal: React.FC<DepositModalProps> = ({
               className={`
                 w-full px-4 py-3 bg-black/50 border rounded-lg text-lg
                 text-white font-mono
-                focus:outline-none focus:ring-1 focus:ring-[#00f5ff]
+                focus:outline-none focus:ring-1 focus:ring-blue-500
                 disabled:opacity-50 disabled:cursor-not-allowed
-                ${error ? 'border-red-500' : 'border-[#00f5ff]/30'}
+                ${error ? 'border-red-500' : 'border-blue-500/30'}
               `}
             />
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-mono">
@@ -240,7 +182,7 @@ export const DepositModal: React.FC<DepositModalProps> = ({
             <button
               onClick={handleMaxClick}
               disabled={isLoading}
-              className="text-[10px] text-[#00f5ff] hover:text-cyan-400 font-mono disabled:opacity-50 transition-colors uppercase tracking-wider"
+              className="text-[10px] text-blue-400 hover:text-blue-300 font-mono disabled:opacity-50 transition-colors uppercase tracking-wider"
             >
               Use Max
             </button>
@@ -257,8 +199,8 @@ export const DepositModal: React.FC<DepositModalProps> = ({
                 px-2 py-2 rounded border font-mono text-xs
                 transition-all duration-200
                 ${amount === quickAmount.toString()
-                  ? 'bg-[#00f5ff]/20 border-[#00f5ff] text-[#00f5ff] shadow-[0_0_10px_rgba(0,245,255,0.3)]'
-                  : 'bg-black/30 border-[#00f5ff]/30 text-gray-300 hover:border-[#00f5ff] hover:text-[#00f5ff]'
+                  ? 'bg-blue-500/20 border-blue-500 text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.3)]'
+                  : 'bg-black/30 border-blue-500/30 text-gray-300 hover:border-blue-500 hover:text-blue-400'
                 }
                 disabled:opacity-50 disabled:cursor-not-allowed
               `}

@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS bet_history (
   id TEXT PRIMARY KEY,
   wallet_address TEXT NOT NULL,
-  asset TEXT NOT NULL DEFAULT 'BNB',
+  asset TEXT NOT NULL DEFAULT 'XTZ',
   direction TEXT NOT NULL CHECK (direction IN ('UP', 'DOWN')),
   amount NUMERIC(20, 8) NOT NULL,
   multiplier NUMERIC(10, 4) NOT NULL DEFAULT 1.9,
@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS bet_history (
   end_price NUMERIC(20, 8) NOT NULL DEFAULT 0,
   payout NUMERIC(20, 8) NOT NULL DEFAULT 0,
   won BOOLEAN NOT NULL DEFAULT false,
-  mode TEXT NOT NULL DEFAULT 'binomo',
-  network TEXT DEFAULT 'BNB',
+  mode TEXT NOT NULL DEFAULT 'tezonomo',
+  network TEXT DEFAULT 'TEZOS',
   resolved_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

@@ -37,7 +37,7 @@ const TIER_DATA = [
     {
         id: 'vip',
         name: 'VIP',
-        color: 'from-purple-400 to-purple-600',
+        color: 'from-blue-400 to-blue-600',
         icon: '⬢',
         assets: 'All',
         blitz: true,
