@@ -6,7 +6,7 @@
 import { TezosToolkit } from '@taquito/taquito';
 
 // Tezos Mainnet RPC
-const RPC_URL = process.env.NEXT_PUBLIC_TEZOS_RPC_URL || 'https://mainnet.ecadinfra.com';
+const RPC_URL = process.env.NEXT_PUBLIC_TEZOS_RPC_URL || 'https://rpc.tzkt.io/mainnet';
 const TREASURY_ADDRESS = process.env.NEXT_PUBLIC_TEZOS_TREASURY_ADDRESS || '';
 
 const tezos = new TezosToolkit(RPC_URL);

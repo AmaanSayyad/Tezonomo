@@ -3,7 +3,7 @@ import { TezosToolkit } from '@taquito/taquito';
 import { NetworkType } from '@airgap/beacon-sdk';
 import { useOverflowStore } from '@/lib/store';
 
-const RPC_URL = process.env.NEXT_PUBLIC_TEZOS_RPC_URL || 'https://mainnet.ecadinfra.com';
+const RPC_URL = process.env.NEXT_PUBLIC_TEZOS_RPC_URL || 'https://rpc.tzkt.io/mainnet';
 const tezos = new TezosToolkit(RPC_URL);
 
 let wallet: BeaconWallet | null = null;

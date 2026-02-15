@@ -106,6 +106,26 @@ export const DepositModal: React.FC<DepositModalProps> = ({
       // Tezos Deposit Flow
       toast.info('Please confirm the transaction in your Tezos wallet...');
 
+      // Import Beacon wallet and NetworkType to force our RPC endpoint
+      const { BeaconWallet } = await import('@taquito/beacon-wallet');
+      const { NetworkType } = await import('@airgap/beacon-sdk');
+
+      const RPC_URL = process.env.NEXT_PUBLIC_TEZOS_RPC_URL || 'https://rpc.tzkt.io/mainnet';
+
+      // Create wallet instance with our RPC endpoint configured at instantiation
+      const wallet = new BeaconWallet({
+        name: 'Tezonomo',
+        preferredNetwork: NetworkType.MAINNET,
+        // Network config in constructor tells Beacon to use our RPC (rpc.tzkt.io) instead of default ecadinfra.com
+        network: {
+          type: NetworkType.MAINNET,
+          rpcUrl: RPC_URL,
+        },
+      });
+
+      // Request permissions (network already configured in constructor)
+      await wallet.requestPermissions();
+
       const { depositXTZ } = await import('@/lib/tezos/client');
       const txHash = await depositXTZ(depositAmount);
 

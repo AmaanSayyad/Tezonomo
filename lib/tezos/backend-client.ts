@@ -1,16 +1,19 @@
 /**
  * Tezos Backend Client
  * Used for administrative operations like withdrawals signing with Treasury Private Key
+ * Uses dynamic imports so the build does not require @taquito/* at bundle time.
  */
-
-import { TezosToolkit } from '@taquito/taquito';
-import { InMemorySigner } from '@taquito/signer';
 
 /**
  * Get the Tezos provider with Treasury signer
  */
 export async function getTezosTreasuryClient() {
-    const rpcUrl = process.env.NEXT_PUBLIC_TEZOS_RPC_URL || 'https://mainnet.ecadinfra.com';
+    const [{ TezosToolkit }, { InMemorySigner }] = await Promise.all([
+        import('@taquito/taquito'),
+        import('@taquito/signer'),
+    ]);
+
+    const rpcUrl = process.env.NEXT_PUBLIC_TEZOS_RPC_URL || 'https://rpc.tzkt.io/mainnet';
     const secretKey = process.env.TEZOS_TREASURY_SECRET_KEY;
 
     if (!secretKey) {
@@ -24,10 +27,7 @@ export async function getTezosTreasuryClient() {
 }
 
 /**
- * Transfer XTZ from treasury to a user.
- * Uses explicit gas limits compatible with Tezos Protocol 024 (PtTALLIN), which
- * reduced block gas limits. RPC estimation can exceed per-operation limits and
- * cause gas_limit_too_high / gas_exhausted.block.
+ * Transfer XTZ from treasury to a user
  */
 export async function transferXTZFromTreasury(
     toAddress: string,
@@ -36,26 +36,19 @@ export async function transferXTZFromTreasury(
     try {
         const tezos = await getTezosTreasuryClient();
 
-        console.log(`Initiating Tezos withdrawal: ${amountXTZ} XTZ to ${toAddress}`);
+        // Convert XTZ to mutez (integer) to avoid float precision issues
+        const amountMutez = Math.round(amountXTZ * 1_000_000);
 
-        // Explicit gas limits for a simple implicit→implicit transfer.
-        // 2000 was too low (gas_exhausted.operation); must stay below protocol max (gas_limit_too_high).
+        console.log(`Initiating Tezos withdrawal: ${amountXTZ} XTZ (${amountMutez} mutez) to ${toAddress}`);
+
         const op = await tezos.contract.transfer({
             to: toAddress,
-            amount: amountXTZ,
-            gasLimit: 5000,
-            storageLimit: 0,
+            amount: amountMutez,
+            mutez: true,
         });
 
         console.log(`Tezos withdrawal operation sent: ${op.hash}`);
-        // Timeout so the API doesn't hang; Tezos block ~6s but network can be slow
-        const CONFIRM_TIMEOUT_MS = 60000;
-        await Promise.race([
-            op.confirmation(1),
-            new Promise<void>((_, reject) =>
-                setTimeout(() => reject(new Error('Confirmation timed out. Check the explorer for your transaction.')), CONFIRM_TIMEOUT_MS)
-            ),
-        ]);
+        await op.confirmation(1);
         console.log(`Tezos withdrawal confirmed!`);
 
         return op.hash;
